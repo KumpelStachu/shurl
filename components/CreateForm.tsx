@@ -20,8 +20,9 @@ import { useMediaQuery } from '@mantine/hooks'
 import { NextLink } from '@mantine/next'
 import { showNotification } from '@mantine/notifications'
 import { ShortUrl } from '@prisma/client'
-import { IconArrowsShuffle } from '@tabler/icons'
+import { IconArrowsShuffle, IconCalendar, IconClock } from '@tabler/icons'
 import { randomAlias } from '@utils/utils'
+import dayjs from 'dayjs'
 import { useState } from 'react'
 import superjson from 'superjson'
 
@@ -121,20 +122,23 @@ export default function CreateForm({ onCreated }: Props) {
 						)}
 					</Group>
 
-					<Group grow align="end" spacing="xs">
-						<DatePicker
-							excludeDate={date => new Date().getTime() > date.getTime()}
-							label="expires"
-							placeholder="never"
-							clearable
-							{...form.getInputProps('expires')}
-						/>
-						<TimeInput
-							description={!form.values.expires && 'never'}
-							disabled={!form.values.expires}
-							{...form.getInputProps('expires')}
-						/>
-					</Group>
+					{/* <Group grow align="end" spacing="xs"> */}
+					<DatePicker
+						icon={<IconCalendar size={20} />}
+						excludeDate={date => dayjs(date).isBefore(new Date())}
+						label="expires"
+						placeholder="never"
+						clearable
+						{...form.getInputProps('expires')}
+					/>
+					{/* <TimeInput
+							icon={<IconClock size={20} />}
+							description={!form.values.expiresDate && 'never'}
+							disabled={!form.values.expiresDate}
+							withSeconds
+							{...form.getInputProps('expiresTime')}
+						/> */}
+					{/* </Group> */}
 
 					{/* <Group align="end" spacing="xs">
 						<Checkbox mb="xs" {...form.getInputProps('usePassword', { type: 'checkbox' })} />
