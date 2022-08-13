@@ -18,7 +18,7 @@ const handler: NextApiHandler = async (req, res) => {
 
 	try {
 		const created = await prisma.shortUrl.create({ data })
-		res.status(200).json(created)
+		res.status(200).json(superjson.stringify(created))
 	} catch (error) {
 		res.status(500).json(error)
 	}

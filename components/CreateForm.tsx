@@ -26,7 +26,7 @@ import { useState } from 'react'
 import superjson from 'superjson'
 
 type Props = {
-	onCreated(url: ShortUrl): void
+	onCreated?(url: ShortUrl): void
 }
 
 export default function CreateForm({ onCreated }: Props) {
@@ -70,7 +70,9 @@ export default function CreateForm({ onCreated }: Props) {
 			})
 			if (res.status !== 200) throw await res.json()
 
-			onCreated(values as ShortUrl)
+			const data = superjson.parse<ShortUrl>(await res.json())
+			onCreated?.(data)
+
 			showNotification({
 				color: 'green',
 				title: 'created shurl',
@@ -79,7 +81,7 @@ export default function CreateForm({ onCreated }: Props) {
 						{location.origin}/{values.alias}
 					</Text>
 				),
-				autoClose: 10000,
+				autoClose: 5000,
 			})
 		} catch (error) {
 			showNotification({
