@@ -1,6 +1,7 @@
 import { NextApiHandler } from 'next'
 import superjson from 'superjson'
 import { prisma } from '@utils/prisma'
+import { randomAlias } from '@utils/utils'
 
 const handler: NextApiHandler = async (req, res) => {
 	if (req.method !== 'POST') {
@@ -15,6 +16,8 @@ const handler: NextApiHandler = async (req, res) => {
 		expires: Date | null
 		visits?: number
 	}>(req.body)
+
+	data.alias ??= randomAlias()
 
 	try {
 		const created = await prisma.shortUrl.create({ data })
