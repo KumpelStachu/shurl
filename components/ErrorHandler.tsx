@@ -1,4 +1,3 @@
-import type { NotificationProps } from '@mantine/core'
 import { showNotification } from '@mantine/notifications'
 import { useRouter } from 'next/router'
 import { useEffect } from 'react'
