@@ -112,15 +112,20 @@ const HomePage: NextPage = () => {
 								placeholder="random alias"
 								{...form.getInputProps('alias')}
 							/>
-							{large ? (
-								<Button onClick={randomize} variant="light" rightIcon={<IconArrowsShuffle />}>
-									randomize
-								</Button>
-							) : (
-								<ActionIcon onClick={randomize} variant="light" color={theme.primaryColor} size="lg">
-									<IconArrowsShuffle />
-								</ActionIcon>
-							)}
+							<Button
+								onClick={randomize}
+								variant="light"
+								rightIcon={<IconArrowsShuffle />}
+								px="sm"
+								styles={{
+									rightIcon: {
+										marginLeft: large ? undefined : 0,
+									},
+								}}
+								aria-label="randomize"
+							>
+								{large && 'randomize'}
+							</Button>
 						</Group>
 
 						{/* <Group grow align="end" spacing="xs"> */}
