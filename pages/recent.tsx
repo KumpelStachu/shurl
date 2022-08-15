@@ -3,13 +3,21 @@ import type { ShortUrl } from '@prisma/client'
 import { prisma } from '@utils/prisma'
 import { transformShurls } from '@utils/utils'
 import type { GetStaticProps, NextPage } from 'next'
+import Head from 'next/head'
 
 type Props = {
 	shurls: ShortUrl[]
 }
 
 const RecentPage: NextPage<Props> = ({ shurls }) => {
-	return <UrlsTable title="recent shurls" urls={shurls} />
+	return (
+		<>
+			<Head>
+				<title>recent | shurl</title>
+			</Head>
+			<UrlsTable title="recent shurls" urls={shurls} />
+		</>
+	)
 }
 
 export const getStaticProps: GetStaticProps<Props> = async () => {

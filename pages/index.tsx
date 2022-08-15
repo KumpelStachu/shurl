@@ -20,6 +20,7 @@ import { IconArrowsShuffle, IconCalendar } from '@tabler/icons'
 import { randomAlias } from '@utils/utils'
 import dayjs from 'dayjs'
 import type { NextPage } from 'next'
+import Head from 'next/head'
 import { useState } from 'react'
 import superjson from 'superjson'
 
@@ -90,53 +91,57 @@ const HomePage: NextPage = () => {
 	}
 
 	return (
-		<Card sx={{ position: 'relative' }}>
-			<Title order={2} mb="md">
-				create new shurl
-			</Title>
+		<>
+			<Head>
+				<title>create | shurl</title>
+			</Head>
+			<Card sx={{ position: 'relative' }}>
+				<Title order={2} mb="md">
+					create new shurl
+				</Title>
 
-			<LoadingOverlay visible={loading} />
-			<form onSubmit={form.onSubmit(handleSubmit)}>
-				<Stack spacing="xs">
-					<TextInput required label="url" placeholder="https://shurl.ovh" {...form.getInputProps('url')} />
+				<LoadingOverlay visible={loading} />
+				<form onSubmit={form.onSubmit(handleSubmit)}>
+					<Stack spacing="xs">
+						<TextInput required label="url" placeholder="https://shurl.ovh" {...form.getInputProps('url')} />
 
-					<Group align="end" spacing="sm">
-						<TextInput
-							sx={{ flex: 1 }}
-							label="alias"
-							placeholder="random alias"
-							{...form.getInputProps('alias')}
+						<Group align="end" spacing="sm">
+							<TextInput
+								sx={{ flex: 1 }}
+								label="alias"
+								placeholder="random alias"
+								{...form.getInputProps('alias')}
+							/>
+							{large ? (
+								<Button onClick={randomize} variant="light" rightIcon={<IconArrowsShuffle />}>
+									randomize
+								</Button>
+							) : (
+								<ActionIcon onClick={randomize} variant="light" color={theme.primaryColor} size="lg">
+									<IconArrowsShuffle />
+								</ActionIcon>
+							)}
+						</Group>
+
+						{/* <Group grow align="end" spacing="xs"> */}
+						<DatePicker
+							icon={<IconCalendar size={20} />}
+							excludeDate={date => dayjs(date).isBefore(new Date())}
+							label="expires"
+							placeholder="never"
+							clearable
+							{...form.getInputProps('expires')}
 						/>
-						{large ? (
-							<Button onClick={randomize} variant="light" rightIcon={<IconArrowsShuffle />}>
-								randomize
-							</Button>
-						) : (
-							<ActionIcon onClick={randomize} variant="light" color={theme.primaryColor} size="lg">
-								<IconArrowsShuffle />
-							</ActionIcon>
-						)}
-					</Group>
-
-					{/* <Group grow align="end" spacing="xs"> */}
-					<DatePicker
-						icon={<IconCalendar size={20} />}
-						excludeDate={date => dayjs(date).isBefore(new Date())}
-						label="expires"
-						placeholder="never"
-						clearable
-						{...form.getInputProps('expires')}
-					/>
-					{/* <TimeInput
+						{/* <TimeInput
 							icon={<IconClock size={20} />}
 							description={!form.values.expiresDate && 'never'}
 							disabled={!form.values.expiresDate}
 							withSeconds
 							{...form.getInputProps('expiresTime')}
 						/> */}
-					{/* </Group> */}
+						{/* </Group> */}
 
-					{/* <Group align="end" spacing="xs">
+						{/* <Group align="end" spacing="xs">
 						<Checkbox mb="xs" {...form.getInputProps('usePassword', { type: 'checkbox' })} />
 						<PasswordInput
 							sx={{ flex: 1 }}
@@ -148,13 +153,14 @@ const HomePage: NextPage = () => {
 						/>
 					</Group> */}
 
-					<Group mt="xs" position="apart" align="start">
-						<Checkbox label="public" {...form.getInputProps('public', { type: 'checkbox' })} />
-						<Button type="submit">create</Button>
-					</Group>
-				</Stack>
-			</form>
-		</Card>
+						<Group mt="xs" position="apart" align="start">
+							<Checkbox label="public" {...form.getInputProps('public', { type: 'checkbox' })} />
+							<Button type="submit">create</Button>
+						</Group>
+					</Stack>
+				</form>
+			</Card>
+		</>
 	)
 }
 

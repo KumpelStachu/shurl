@@ -22,8 +22,8 @@ function MyApp({ Component, pageProps }: AppProps) {
 	return (
 		<>
 			<Head>
-				<title>shurl</title>
 				<meta name="viewport" content="minimum-scale=1, initial-scale=1, width=device-width" />
+				<meta name="description" content="shurl - url shortener" />
 			</Head>
 
 			<ColorSchemeProvider colorScheme={colorScheme} toggleColorScheme={toggleColorScheme}>
