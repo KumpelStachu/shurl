@@ -1,60 +1,161 @@
-import CreateForm from '@components/CreateForm'
-import UrlsTable from '@components/UrlsTable.client'
-import { Container, Stack } from '@mantine/core'
-import { ShortUrl } from '@prisma/client'
-import prisma from '@utils/prisma'
-import { expired } from '@utils/utils'
+import {
+	ActionIcon,
+	Button,
+	Card,
+	Checkbox,
+	Group,
+	LoadingOverlay,
+	Stack,
+	Text,
+	TextInput,
+	Title,
+	useMantineTheme,
+} from '@mantine/core'
+import { DatePicker } from '@mantine/dates'
+import { useForm } from '@mantine/form'
+import { useMediaQuery } from '@mantine/hooks'
+import { NextLink } from '@mantine/next'
+import { showNotification } from '@mantine/notifications'
+import { IconArrowsShuffle, IconCalendar } from '@tabler/icons'
+import { randomAlias } from '@utils/utils'
+import dayjs from 'dayjs'
 import type { NextPage } from 'next'
-import { GetServerSideProps } from 'next'
+import { useState } from 'react'
+import superjson from 'superjson'
 
-type Props = {
-	recent: ShortUrl[]
-	top: ShortUrl[]
-}
+const HomePage: NextPage = () => {
+	const theme = useMantineTheme()
+	const large = useMediaQuery(theme.fn.largerThan('xs').slice(7), false)
+	const [loading, setLoading] = useState(false)
+	const form = useForm({
+		validateInputOnChange: true,
+		initialValues: {
+			url: '',
+			alias: randomAlias(),
+			public: true,
+			usePassword: false,
+			password: '',
+			expires: null,
+		},
+		validate: {
+			alias: value => decodeURI(value).includes('/'),
+			url(value) {
+				try {
+					new URL(value)
+				} catch {
+					return 'invalid url'
+				}
+			},
+		},
+	})
 
-const HomePage: NextPage<Props> = ({ recent, top }) => {
+	function randomize() {
+		form.setValues({ ...form.values, alias: randomAlias() })
+	}
+
+	async function handleSubmit({ usePassword, ...values }: typeof form.values) {
+		setLoading(true)
+		try {
+			const res = await fetch('/api/create', {
+				method: 'POST',
+				body: superjson.stringify({
+					...values,
+					password: usePassword ? values.password : null,
+				}),
+			})
+			if (res.status !== 200) throw await res.json()
+
+			showNotification({
+				color: 'green',
+				title: 'created shurl',
+				message: (
+					<Text variant="link" component={NextLink} href={`/${values.alias}`}>
+						{location.origin}/{values.alias}
+					</Text>
+				),
+				autoClose: 5000,
+			})
+		} catch (error) {
+			showNotification({
+				color: 'red',
+				title:
+					{
+						P2002: 'alias already exists',
+					}[(error as any)?.code as string] ?? 'unknown error',
+				message: `error ${(error as any)?.code}`,
+				autoClose: 2000,
+			})
+		}
+		setLoading(false)
+	}
+
 	return (
-		<Container size="sm" my="xl">
-			<Stack spacing="xl">
-				<CreateForm />
+		<Card sx={{ position: 'relative' }}>
+			<Title order={2} mb="md">
+				create new shurl
+			</Title>
 
-				<UrlsTable title="top shurls" urls={top} visits />
-				<UrlsTable title="recent shurls" urls={recent} />
-			</Stack>
-		</Container>
+			<LoadingOverlay visible={loading} />
+			<form onSubmit={form.onSubmit(handleSubmit)}>
+				<Stack spacing="xs">
+					<TextInput required label="url" placeholder="https://shurl.ovh" {...form.getInputProps('url')} />
+
+					<Group align="end" spacing="sm">
+						<TextInput
+							sx={{ flex: 1 }}
+							label="alias"
+							placeholder="random alias"
+							{...form.getInputProps('alias')}
+						/>
+						{large ? (
+							<Button onClick={randomize} variant="light" rightIcon={<IconArrowsShuffle />}>
+								randomize
+							</Button>
+						) : (
+							<ActionIcon onClick={randomize} variant="light" color={theme.primaryColor} size="lg">
+								<IconArrowsShuffle />
+							</ActionIcon>
+						)}
+					</Group>
+
+					{/* <Group grow align="end" spacing="xs"> */}
+					<DatePicker
+						icon={<IconCalendar size={20} />}
+						excludeDate={date => dayjs(date).isBefore(new Date())}
+						label="expires"
+						placeholder="never"
+						clearable
+						{...form.getInputProps('expires')}
+					/>
+					{/* <TimeInput
+							icon={<IconClock size={20} />}
+							description={!form.values.expiresDate && 'never'}
+							disabled={!form.values.expiresDate}
+							withSeconds
+							{...form.getInputProps('expiresTime')}
+						/> */}
+					{/* </Group> */}
+
+					{/* <Group align="end" spacing="xs">
+						<Checkbox mb="xs" {...form.getInputProps('usePassword', { type: 'checkbox' })} />
+						<PasswordInput
+							sx={{ flex: 1 }}
+							label="password"
+							autoComplete="new-password"
+							required={form.values.usePassword}
+							disabled={!form.values.usePassword}
+							{...form.getInputProps('password')}
+						/>
+					</Group> */}
+
+					<Group mt="xs" position="apart" align="start">
+						<Checkbox label="public" {...form.getInputProps('public', { type: 'checkbox' })} />
+						<Button type="submit">create</Button>
+					</Group>
+				</Stack>
+			</form>
+		</Card>
 	)
 }
-
-export const getServerSideProps: GetServerSideProps<Props> = async () => {
-	const top = await prisma.shortUrl.findMany({
-		orderBy: {
-			visits: 'desc',
-		},
-		where: {
-			public: true,
-		},
-		take: 5,
-	})
-
-	const recent = await prisma.shortUrl.findMany({
-		orderBy: {
-			createdAt: 'desc',
-		},
-		where: {
-			public: true,
-		},
-		take: 20 - top.length,
-	})
-
-	return {
-		props: {
-			recent: transform(recent),
-			top: transform(top),
-		},
-	}
-}
-
-const transform = (a: ShortUrl[]) =>
-	a.map(v => (v.password || expired(v) ? { ...v, url: '******', password: v.password ? '******' : null } : v))
 
 export default HomePage

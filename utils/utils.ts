@@ -1,6 +1,6 @@
-import { ShortUrl } from '@prisma/client'
+import type { ShortUrl } from '@prisma/client'
 
-const dateTimeFormatter = new Intl.DateTimeFormat(undefined, { timeStyle: 'short', dateStyle: 'short' })
+const dateTimeFormatter = new Intl.DateTimeFormat(undefined, { dateStyle: 'short' }) //timeStyle: 'short'
 const relativeTimeFormatter = new Intl.RelativeTimeFormat('en')
 
 const DIVISIONS: { amount: number; name: Intl.RelativeTimeFormatUnit }[] = [
@@ -30,3 +30,6 @@ export const formatDateRelative = (date: Date) => {
 export const randomAlias = () => Math.floor(Math.random() * Number.MAX_SAFE_INTEGER).toString(36)
 
 export const expired = ({ expires }: Pick<ShortUrl, 'expires'>) => (expires ?? new Date()) < new Date()
+
+export const transformShurls = (a: ShortUrl[]) =>
+	a.map(v => (v.password || expired(v) ? { ...v, url: '******', password: v.password ? '******' : null } : v))

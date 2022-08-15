@@ -1,5 +1,5 @@
 import type { GetServerSideProps, NextPage } from 'next'
-import prisma from '@utils/prisma'
+import { prisma } from '@utils/prisma'
 import { expired } from '@utils/utils'
 
 const RedirectPage: NextPage = () => {
@@ -23,7 +23,9 @@ export const getServerSideProps: GetServerSideProps = async ctx => {
 
 	await prisma.shortUrl.update({
 		data: {
-			visits: found.visits + 1,
+			visits: {
+				increment: 1,
+			},
 		},
 		where: {
 			id: found.id,

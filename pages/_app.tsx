@@ -1,10 +1,11 @@
-import { AppShell, ColorScheme, ColorSchemeProvider, MantineProvider } from '@mantine/core'
+import ErrorHandler from '@components/ErrorHandler'
+import Navbar from '@components/Navbar'
+import { ColorScheme, ColorSchemeProvider, Container, MantineProvider } from '@mantine/core'
 import { useHotkeys, useLocalStorage } from '@mantine/hooks'
+import { NotificationsProvider } from '@mantine/notifications'
 import { cache } from '@utils/cache'
 import type { AppProps } from 'next/app'
 import Head from 'next/head'
-import { NotificationsProvider } from '@mantine/notifications'
-import ErrorHandler from '@components/ErrorHandler'
 
 function MyApp({ Component, pageProps }: AppProps) {
 	const [colorScheme, setColorScheme] = useLocalStorage<ColorScheme>({
@@ -24,6 +25,7 @@ function MyApp({ Component, pageProps }: AppProps) {
 				<title>shurl</title>
 				<meta name="viewport" content="minimum-scale=1, initial-scale=1, width=device-width" />
 			</Head>
+
 			<ColorSchemeProvider colorScheme={colorScheme} toggleColorScheme={toggleColorScheme}>
 				<MantineProvider
 					withGlobalStyles
@@ -33,7 +35,11 @@ function MyApp({ Component, pageProps }: AppProps) {
 				>
 					<NotificationsProvider position="top-right">
 						<ErrorHandler />
-						<Component {...pageProps} />
+
+						<Navbar />
+						<Container size="sm" my="lg">
+							<Component {...pageProps} />
+						</Container>
 					</NotificationsProvider>
 				</MantineProvider>
 			</ColorSchemeProvider>

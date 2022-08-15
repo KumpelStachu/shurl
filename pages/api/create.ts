@@ -1,6 +1,6 @@
 import { NextApiHandler } from 'next'
 import superjson from 'superjson'
-import prisma from '@utils/prisma'
+import { prisma } from '@utils/prisma'
 
 const handler: NextApiHandler = async (req, res) => {
 	if (req.method !== 'POST') {
@@ -18,6 +18,8 @@ const handler: NextApiHandler = async (req, res) => {
 
 	try {
 		const created = await prisma.shortUrl.create({ data })
+		if (created.public) await res.revalidate('/recent')
+
 		res.status(200).json(superjson.stringify(created))
 	} catch (error) {
 		res.status(500).json(error)
