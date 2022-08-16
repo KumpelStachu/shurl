@@ -1,0 +1,15 @@
+- [x] trpc
+  - [ ] prisma errors
+  - [ ] [trpc-shield](https://github.com/omar-dulaimi/trpc-shield)
+- [ ] expiration time
+- [ ] fix date flicker
+- [ ] auth
+  - [ ] passwordless
+  - [ ] save created shurls
+- [ ] password
+- [ ] ***optional***
+  - [ ] ~~404 ssr redirect~~
+  - [ ] visits table
+  - [ ] status page
+  - [ ] ~~middleware~~
+  - [ ] ~~*custom domains*~~

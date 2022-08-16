@@ -1,41 +1,42 @@
 import UrlsTable from '@components/UrlsTable'
-import type { ShortUrl } from '@prisma/client'
-import { prisma } from '@utils/prisma'
-import { transformShurls } from '@utils/utils'
+import { Card, LoadingOverlay, Title } from '@mantine/core'
+import { appRouter } from '@server/routers/app'
+import { createSSGHelpers } from '@trpc/react/ssg'
+import { trpc } from '@utils/trpc'
 import type { GetStaticProps, NextPage } from 'next'
 import Head from 'next/head'
 
-type Props = {
-	shurls: ShortUrl[]
-}
+const TopPage: NextPage = () => {
+	const query = trpc.useQuery(['shurl.top'])
 
-const TopPage: NextPage<Props> = ({ shurls }) => {
 	return (
-		<>
+		<Card>
+			<LoadingOverlay visible={query.status === 'loading'} />
 			<Head>
 				<title>top | shurl</title>
 			</Head>
-			<UrlsTable title="top shurls" urls={shurls} withClicks />
-		</>
+
+			<Title order={2} mb="md">
+				top shurls
+			</Title>
+			<UrlsTable urls={query.data} withClicks />
+		</Card>
 	)
 }
 
-export const getStaticProps: GetStaticProps<Props> = async () => {
-	const top = await prisma.shortUrl.findMany({
-		orderBy: {
-			visits: 'desc',
-		},
-		where: {
-			public: true,
-		},
-		take: 10,
+export const getStaticProps: GetStaticProps = async () => {
+	const ssg = createSSGHelpers({
+		router: appRouter,
+		ctx: {},
 	})
+
+	await ssg.fetchQuery('shurl.top')
 
 	return {
 		props: {
-			shurls: transformShurls(top),
+			trpcState: ssg.dehydrate(),
 		},
-		revalidate: 15,
+		revalidate: 30,
 	}
 }
 

@@ -1,5 +1,5 @@
 import type { GetServerSideProps, NextPage } from 'next'
-import { prisma } from '@utils/prisma'
+import { prisma } from '@server/prisma'
 import { expired } from '@utils/utils'
 
 const RedirectPage: NextPage = () => {

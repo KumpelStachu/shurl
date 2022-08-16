@@ -9,6 +9,19 @@ const emojiid = (size: number) =>
 		.map(() => EMOJI[Math.floor(Math.random() * EMOJI.length)])
 		.join('')
 
+export function getBaseUrl() {
+	if (typeof window !== 'undefined') {
+		return ''
+	}
+	// reference for vercel.com
+	if (process.env.VERCEL_URL) {
+		return `https://${process.env.VERCEL_URL}`
+	}
+
+	// assume localhost
+	return `http://localhost:${process.env.PORT ?? 3000}`
+}
+
 const dateTimeFormatter = new Intl.DateTimeFormat(undefined, { dateStyle: 'short' }) //timeStyle: 'short'
 const relativeTimeFormatter = new Intl.RelativeTimeFormat('en')
 
