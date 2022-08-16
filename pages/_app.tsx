@@ -13,11 +13,15 @@ import { httpBatchLink } from '@trpc/client/links/httpBatchLink'
 import { loggerLink } from '@trpc/client/links/loggerLink'
 import { SSRContext } from '@utils/trpc'
 import { RouterTransition } from '@components/RouterTransition'
+import dynamic from 'next/dynamic'
+
+const ReactQueryDevtools = dynamic(async () => (await import('react-query/devtools')).ReactQueryDevtools)
 
 function MyApp({ Component, pageProps }: AppProps) {
 	return (
 		<>
 			<Head>
+				<link rel="icon" href="/favicon.ico" type="image/x-icon" />
 				<meta name="viewport" content="minimum-scale=1, initial-scale=1, width=device-width" />
 				<meta name="description" content="shurl - url shortener" />
 			</Head>
@@ -38,6 +42,8 @@ function MyApp({ Component, pageProps }: AppProps) {
 					</Container>
 				</NotificationsProvider>
 			</MantineProvider>
+
+			<ReactQueryDevtools />
 		</>
 	)
 }
@@ -56,23 +62,23 @@ export default withTRPC<AppRouter>({
 			}),
 		],
 	}),
-	ssr: true,
-	responseMeta(opts) {
-		const ctx = opts.ctx as SSRContext
+	// ssr: true,
+	// responseMeta(opts) {
+	// 	const ctx = opts.ctx as SSRContext
 
-		if (ctx.status) {
-			return {
-				status: ctx.status,
-			}
-		}
+	// 	if (ctx.status) {
+	// 		return {
+	// 			status: ctx.status,
+	// 		}
+	// 	}
 
-		const error = opts.clientErrors[0]
-		if (error) {
-			return {
-				status: error.data?.httpStatus ?? 500,
-			}
-		}
+	// 	const error = opts.clientErrors[0]
+	// 	if (error) {
+	// 		return {
+	// 			status: error.data?.httpStatus ?? 500,
+	// 		}
+	// 	}
 
-		return {}
-	},
+	// 	return {}
+	// },
 })(MyApp)

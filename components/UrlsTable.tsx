@@ -1,8 +1,10 @@
 import { createStyles, Table, Text, Tooltip } from '@mantine/core'
-import { useMediaQuery } from '@mantine/hooks'
+import { useForceUpdate, useInterval, useMediaQuery } from '@mantine/hooks'
 import { NextLink } from '@mantine/next'
 import { ShortUrl } from '@prisma/client'
 import { expired, formatDate, formatDateRelative } from '@utils/utils'
+import { useEffect } from 'react'
+import ClientOnly from './ClientOnly'
 
 type Props = {
 	urls?: ShortUrl[]
@@ -28,8 +30,15 @@ const useStyles = createStyles(theme => ({
 }))
 
 export default function UrlsTable({ urls, withClicks }: Props) {
+	const forceUpdate = useForceUpdate()
 	const { classes, theme } = useStyles()
 	const small = useMediaQuery(theme.fn.smallerThan('xs').slice(7), false)
+	const interval = useInterval(forceUpdate, 60000)
+
+	useEffect(() => {
+		interval.start()
+		return interval.stop
+	}, [interval])
 
 	return (
 		<Table>
@@ -82,7 +91,9 @@ export default function UrlsTable({ urls, withClicks }: Props) {
 									transition="pop-bottom-left"
 									withArrow
 								>
-									<Text className={classes.shrink}>{formatDateRelative(url.expires)}</Text>
+									<Text className={classes.shrink}>
+										<ClientOnly>{formatDateRelative(url.expires)}</ClientOnly>
+									</Text>
 								</Tooltip>
 							) : (
 								'never'
@@ -96,7 +107,9 @@ export default function UrlsTable({ urls, withClicks }: Props) {
 								transition="pop-bottom-left"
 								withArrow
 							>
-								<Text className={classes.shrink}>{formatDateRelative(url.createdAt)}</Text>
+								<Text className={classes.shrink}>
+									<ClientOnly>{formatDateRelative(url.createdAt)}</ClientOnly>
+								</Text>
 							</Tooltip>
 						</td>
 					</tr>

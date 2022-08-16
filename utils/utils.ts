@@ -22,7 +22,7 @@ export function getBaseUrl() {
 	return `http://localhost:${process.env.PORT ?? 3000}`
 }
 
-const dateTimeFormatter = new Intl.DateTimeFormat(undefined, { dateStyle: 'short' }) //timeStyle: 'short'
+const dateTimeFormatter = new Intl.DateTimeFormat(undefined, { dateStyle: 'short', timeStyle: 'short' })
 const relativeTimeFormatter = new Intl.RelativeTimeFormat('en')
 
 const DIVISIONS: { amount: number; name: Intl.RelativeTimeFormatUnit }[] = [
@@ -47,6 +47,20 @@ export const formatDateRelative = (date: Date) => {
 		}
 		duration /= division.amount
 	}
+}
+
+export const mergeDateTime = (date: Date | null, time: Date | null) =>
+	date && time
+		? new Date(date.setHours(time.getHours(), time.getMinutes(), time.getSeconds(), time.getMilliseconds()))
+		: date
+
+export const isValidUrl = (url: string) => {
+	try {
+		new URL(url)
+	} catch {
+		return false
+	}
+	return true
 }
 
 export const randomAlias = (emoji = false, size?: number) =>

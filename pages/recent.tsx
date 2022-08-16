@@ -30,7 +30,7 @@ export const getStaticProps: GetStaticProps = async () => {
 		ctx: {},
 	})
 
-	await ssg.fetchQuery('shurl.recent')
+	await ssg.prefetchQuery('shurl.recent')
 
 	return {
 		props: {
