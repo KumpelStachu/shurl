@@ -35,6 +35,7 @@ export const getStaticProps: GetStaticProps<Props> = async () => {
 		props: {
 			shurls: transformShurls(recent),
 		},
+		revalidate: 300,
 	}
 }
 
