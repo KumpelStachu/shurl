@@ -1,4 +1,13 @@
 import type { ShortUrl } from '@prisma/client'
+import { customAlphabet } from 'nanoid'
+import { EMOJI } from './emoji'
+
+const nanoid = customAlphabet('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz')
+const emojiid = (size: number) =>
+	Array(size)
+		.fill(0)
+		.map(() => EMOJI[Math.floor(Math.random() * EMOJI.length)])
+		.join('')
 
 const dateTimeFormatter = new Intl.DateTimeFormat(undefined, { dateStyle: 'short' }) //timeStyle: 'short'
 const relativeTimeFormatter = new Intl.RelativeTimeFormat('en')
@@ -27,7 +36,8 @@ export const formatDateRelative = (date: Date) => {
 	}
 }
 
-export const randomAlias = () => Math.floor(Math.random() * Number.MAX_SAFE_INTEGER).toString(36)
+export const randomAlias = (emoji = false, size?: number) =>
+	(emoji ? emojiid : nanoid)(size ?? (emoji ? 3 : 8))
 
 export const expired = ({ expires }: Pick<ShortUrl, 'expires'>) => (expires ?? new Date()) < new Date()
 

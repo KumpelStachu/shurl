@@ -1,4 +1,5 @@
 import {
+	ActionIcon,
 	Button,
 	Card,
 	Checkbox,
@@ -15,7 +16,7 @@ import { useForm } from '@mantine/form'
 import { useMediaQuery } from '@mantine/hooks'
 import { NextLink } from '@mantine/next'
 import { showNotification } from '@mantine/notifications'
-import { IconArrowsShuffle, IconCalendar } from '@tabler/icons'
+import { IconAlphabetLatin, IconArrowsShuffle, IconCalendar, IconMoodHappy } from '@tabler/icons'
 import { randomAlias } from '@utils/utils'
 import dayjs from 'dayjs'
 import type { NextPage } from 'next'
@@ -27,6 +28,8 @@ const HomePage: NextPage = () => {
 	const theme = useMantineTheme()
 	const large = useMediaQuery(theme.fn.largerThan('xs').slice(7), false)
 	const [loading, setLoading] = useState(false)
+	const [emoji, setEmoji] = useState(false)
+
 	const form = useForm({
 		validateInputOnChange: true,
 		initialValues: {
@@ -50,7 +53,7 @@ const HomePage: NextPage = () => {
 	})
 
 	function randomize() {
-		form.setValues({ ...form.values, alias: randomAlias() })
+		form.setValues({ ...form.values, alias: randomAlias(emoji) })
 	}
 
 	async function handleSubmit({ usePassword, ...values }: typeof form.values) {
@@ -104,7 +107,7 @@ const HomePage: NextPage = () => {
 					<Stack spacing="xs">
 						<TextInput required label="url" placeholder="https://shurl.ovh" {...form.getInputProps('url')} />
 
-						<Group align="end" spacing="sm">
+						<Group align="end" spacing="xs">
 							<TextInput
 								sx={{ flex: 1 }}
 								label="alias"
@@ -125,6 +128,16 @@ const HomePage: NextPage = () => {
 							>
 								{large && 'randomize'}
 							</Button>
+							<ActionIcon
+								onClick={() => setEmoji(e => !e)}
+								aria-label="randomize"
+								size="lg"
+								color=""
+								variant="light"
+								sx={{ marginLeft: -theme.spacing.xs / 2 }}
+							>
+								{emoji ? <IconMoodHappy /> : <IconAlphabetLatin />}
+							</ActionIcon>
 						</Group>
 
 						{/* <Group grow align="end" spacing="xs"> */}

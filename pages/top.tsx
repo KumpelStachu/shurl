@@ -15,7 +15,7 @@ const TopPage: NextPage<Props> = ({ shurls }) => {
 			<Head>
 				<title>top | shurl</title>
 			</Head>
-			<UrlsTable title="top shurls" urls={shurls} />
+			<UrlsTable title="top shurls" urls={shurls} withClicks />
 		</>
 	)
 }

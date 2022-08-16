@@ -7,6 +7,7 @@ import { expired, formatDate, formatDateRelative } from '@utils/utils'
 type Props = {
 	title: string
 	urls: ShortUrl[]
+	withClicks?: boolean
 }
 
 const useStyles = createStyles(theme => ({
@@ -27,7 +28,7 @@ const useStyles = createStyles(theme => ({
 	},
 }))
 
-export default function UrlsTable({ title, urls }: Props) {
+export default function UrlsTable({ title, urls, withClicks }: Props) {
 	const { classes, theme } = useStyles()
 	const small = useMediaQuery(theme.fn.smallerThan('xs').slice(7), false)
 
@@ -42,7 +43,7 @@ export default function UrlsTable({ title, urls }: Props) {
 					<tr>
 						<th>alias</th>
 						{!small && <th>url</th>}
-						<th className={classes.shrink}>clicks</th>
+						{withClicks && <th className={classes.shrink}>clicks</th>}
 						<th className={classes.shrink}>expires</th>
 						<th className={classes.shrink}>created</th>
 					</tr>
@@ -77,7 +78,7 @@ export default function UrlsTable({ title, urls }: Props) {
 									)}
 								</td>
 							)}
-							<td className={classes.clicks}>{url.visits}</td>
+							{withClicks && <td className={classes.clicks}>{url.visits}</td>}
 							<td>
 								{url.expires ? (
 									<Tooltip
