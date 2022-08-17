@@ -1,8 +1,8 @@
+import CardWithTitle from '@components/CardWithTitle'
 import UrlsTable from '@components/UrlsTable'
 import {
 	ActionIcon,
 	Button,
-	Card,
 	Checkbox,
 	Group,
 	LoadingOverlay,
@@ -10,41 +10,49 @@ import {
 	Stack,
 	Text,
 	TextInput,
-	Title,
 	useMantineTheme,
 } from '@mantine/core'
 import { DatePicker, TimeInput } from '@mantine/dates'
 import { useForm } from '@mantine/form'
-import { useMediaQuery } from '@mantine/hooks'
+import { useDisclosure, useLocalStorage, useMediaQuery } from '@mantine/hooks'
 import { NextLink } from '@mantine/next'
 import { showNotification } from '@mantine/notifications'
+import { ShortUrl } from '@prisma/client'
 import { IconAlphabetLatin, IconArrowsShuffle, IconCalendar, IconClock, IconMoodHappy } from '@tabler/icons'
 import { trpc } from '@utils/trpc'
 import { isValidUrl, mergeDateTime, randomAlias } from '@utils/utils'
 import dayjs from 'dayjs'
 import type { NextPage } from 'next'
 import Head from 'next/head'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
+import superjson from 'superjson'
 
 const HomePage: NextPage = () => {
+	const [recentLocal, setRecentLocal] = useLocalStorage<ShortUrl[]>({
+		key: 'RECENT_SHURLS',
+		deserialize: v => superjson.parse(v ?? '[]'),
+		serialize: v => (console.log(v), superjson.stringify(v)),
+	})
 	const theme = useMantineTheme()
 	const large = useMediaQuery(theme.fn.largerThan('xs').slice(7), false)
-	const [emoji, setEmoji] = useState(false)
+	const [emoji, { toggle }] = useDisclosure(false)
 	const create = trpc.useMutation(['shurl.create'], {
-		onSuccess(values) {
+		onSuccess(data) {
 			form.reset()
+			setRecentLocal(prev => [data, ...prev])
 			showNotification({
 				color: 'green',
 				title: 'created shurl',
 				message: (
-					<Text variant="link" component={NextLink} href={`/${values.alias}`}>
-						{location.origin}/{values.alias}
+					<Text variant="link" component={NextLink} href={`/${data.alias}`}>
+						{location.origin}/{data.alias}
 					</Text>
 				),
 				autoClose: 5000,
 			})
 		},
 		onError(error) {
+			console.table(error)
 			showNotification({
 				color: 'red',
 				title: error.message,
@@ -83,11 +91,8 @@ const HomePage: NextPage = () => {
 			<Head>
 				<title>create | shurl</title>
 			</Head>
-			<Card>
-				<Title order={2} mb="md">
-					create new shurl
-				</Title>
 
+			<CardWithTitle title="create new shurl">
 				<LoadingOverlay visible={create.status === 'loading'} />
 				<form
 					onSubmit={form.onSubmit(v =>
@@ -125,7 +130,7 @@ const HomePage: NextPage = () => {
 								{large && 'randomize'}
 							</Button>
 							<ActionIcon
-								onClick={() => setEmoji(e => !e)}
+								onClick={toggle}
 								aria-label="randomize"
 								size="lg"
 								color=""
@@ -155,7 +160,7 @@ const HomePage: NextPage = () => {
 							)}
 						</Group>
 
-						{/* <Group align="end" spacing="xs">
+						<Group align="end" spacing="xs">
 							<Checkbox mb="xs" {...form.getInputProps('usePassword', { type: 'checkbox' })} />
 							<PasswordInput
 								sx={{ flex: 1 }}
@@ -165,7 +170,7 @@ const HomePage: NextPage = () => {
 								disabled={!form.values.usePassword}
 								{...form.getInputProps('password')}
 							/>
-						</Group> */}
+						</Group>
 
 						<Group mt="xs" position="apart" align="start">
 							<Checkbox label="public" {...form.getInputProps('public', { type: 'checkbox' })} />
@@ -173,13 +178,12 @@ const HomePage: NextPage = () => {
 						</Group>
 					</Stack>
 				</form>
-			</Card>
+			</CardWithTitle>
 
-			{create.data && (
-				<Card>
-					<Title order={3}>last created</Title>
-					<UrlsTable urls={[create.data]} />
-				</Card>
+			{recentLocal.length > 0 && (
+				<CardWithTitle title="last created" order={3}>
+					<UrlsTable urls={recentLocal} />
+				</CardWithTitle>
 			)}
 		</Stack>
 	)

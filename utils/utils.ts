@@ -1,4 +1,5 @@
 import type { ShortUrl } from '@prisma/client'
+import dayjs from 'dayjs'
 import { customAlphabet } from 'nanoid'
 import { EMOJI } from './emoji'
 
@@ -9,7 +10,7 @@ const emojiid = (size: number) =>
 		.map(() => EMOJI[Math.floor(Math.random() * EMOJI.length)])
 		.join('')
 
-export function getBaseUrl() {
+export const getBaseUrl = () => {
 	if (typeof window !== 'undefined') {
 		return ''
 	}
@@ -66,7 +67,7 @@ export const isValidUrl = (url: string) => {
 export const randomAlias = (emoji = false, size?: number) =>
 	(emoji ? emojiid : nanoid)(size ?? (emoji ? 3 : 8))
 
-export const expired = ({ expires }: Pick<ShortUrl, 'expires'>) => (expires ?? new Date()) < new Date()
+export const expired = <T extends Pick<ShortUrl, 'expires'>>({ expires }: T) => dayjs().isBefore(expires)
 
-export const transformShurls = (a: ShortUrl[]) =>
+export const transformShurls = <T extends Pick<ShortUrl, 'password' | 'expires'>>(a: T[]) =>
 	a.map(v => (v.password || expired(v) ? { ...v, url: '******', password: v.password ? '******' : null } : v))

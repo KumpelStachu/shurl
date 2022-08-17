@@ -13,7 +13,7 @@ const TodoPage: NextPage<Props> = ({ content }) => {
 	return (
 		<Card>
 			<Head>
-				<title>create | shurl</title>
+				<title>todo | shurl</title>
 			</Head>
 			<TypographyStylesProvider>
 				<div

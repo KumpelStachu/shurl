@@ -33,7 +33,7 @@ export default function UrlsTable({ urls, withClicks }: Props) {
 	const forceUpdate = useForceUpdate()
 	const { classes, theme } = useStyles()
 	const small = useMediaQuery(theme.fn.smallerThan('xs').slice(7), false)
-	const interval = useInterval(forceUpdate, 60000)
+	const interval = useInterval(forceUpdate, 1000)
 
 	useEffect(() => {
 		interval.start()

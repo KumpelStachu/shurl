@@ -1,5 +1,6 @@
+import CardWithTitle from '@components/CardWithTitle'
 import UrlsTable from '@components/UrlsTable'
-import { Card, LoadingOverlay, Title } from '@mantine/core'
+import { LoadingOverlay } from '@mantine/core'
 import { appRouter } from '@server/routers/app'
 import { createSSGHelpers } from '@trpc/react/ssg'
 import { trpc } from '@utils/trpc'
@@ -10,17 +11,14 @@ const TopPage: NextPage = () => {
 	const query = trpc.useQuery(['shurl.top'])
 
 	return (
-		<Card>
+		<CardWithTitle title="top shurls">
 			<LoadingOverlay visible={query.status === 'loading'} />
 			<Head>
 				<title>top | shurl</title>
 			</Head>
 
-			<Title order={2} mb="md">
-				top shurls
-			</Title>
 			<UrlsTable urls={query.data} withClicks />
-		</Card>
+		</CardWithTitle>
 	)
 }
 
