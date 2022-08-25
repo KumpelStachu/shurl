@@ -39,17 +39,17 @@ export default function SocialLogin() {
 					</Button>
 				</Grid.Col>
 				<Grid.Col span={6} md={4}>
-					<Button sx={s`#1DB954`} onClick={() => signIn('spotify')} fullWidth>
+					<Button sx={s`#1DB954`} onClick={() => signIn('spotify')} fullWidth disabled>
 						spotify
 					</Button>
 				</Grid.Col>
 				<Grid.Col span={6} md={4}>
-					<Button sx={s`#9146FF`} onClick={() => signIn('twitch')} fullWidth>
+					<Button sx={s`#9146FF`} onClick={() => signIn('twitch')} fullWidth disabled>
 						twitch
 					</Button>
 				</Grid.Col>
 				<Grid.Col span={6} md={4}>
-					<Button sx={s`#1DA1F2`} onClick={() => signIn('twitch')} fullWidth>
+					<Button sx={s`#1DA1F2`} onClick={() => signIn('twitch')} fullWidth disabled>
 						twitter
 					</Button>
 				</Grid.Col>
