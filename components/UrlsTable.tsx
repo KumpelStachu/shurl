@@ -13,19 +13,10 @@ type Props = {
 
 const useStyles = createStyles(theme => ({
 	grow: {
-		maxWidth: theme.breakpoints.xs / 4,
-		textOverflow: 'ellipsis',
-		whiteSpace: 'nowrap',
-		overflow: 'hidden',
-	},
-	shrink: {
-		maxWidth: theme.breakpoints.xs / 4,
-		width: '1%',
-		whiteSpace: 'nowrap',
-	},
-	clicks: {
-		width: '1%',
-		textAlign: 'right',
+		// maxWidth: theme.breakpoints.xs / 4,
+		// textOverflow: 'ellipsis',
+		// whiteSpace: 'nowrap',
+		// overflow: 'hidden',
 	},
 }))
 
@@ -41,14 +32,14 @@ export default function UrlsTable({ urls, withClicks }: Props) {
 	}, [interval])
 
 	return (
-		<Table>
+		<Table highlightOnHover striped>
 			<thead>
 				<tr>
 					<th>alias</th>
 					{!small && <th>url</th>}
-					{withClicks && <th className={classes.shrink}>clicks</th>}
-					<th className={classes.shrink}>expires</th>
-					<th className={classes.shrink}>created</th>
+					{withClicks && <th>clicks</th>}
+					<th>expires</th>
+					<th>created</th>
 				</tr>
 			</thead>
 
@@ -69,6 +60,7 @@ export default function UrlsTable({ urls, withClicks }: Props) {
 										position="left-start"
 										transition="pop"
 										withArrow
+										events={{ focus: false, hover: true, touch: true }}
 									>
 										<Text color="red" sx={{ cursor: 'not-allowed', width: 'min-content' }}>
 											******
@@ -81,17 +73,18 @@ export default function UrlsTable({ urls, withClicks }: Props) {
 								)}
 							</td>
 						)}
-						{withClicks && <td className={classes.clicks}>{url.visits}</td>}
+						{withClicks && <td>{url.visits}</td>}
 						<td>
 							{url.expires ? (
 								<Tooltip
 									label={formatDate(url.expires)}
 									color="dark"
-									position="top-start"
-									transition="pop-bottom-left"
+									position="top"
+									transition="pop"
 									withArrow
+									events={{ focus: false, hover: true, touch: true }}
 								>
-									<Text className={classes.shrink}>
+									<Text>
 										<ClientOnly>{formatDateRelative(url.expires)}</ClientOnly>
 									</Text>
 								</Tooltip>
@@ -103,11 +96,12 @@ export default function UrlsTable({ urls, withClicks }: Props) {
 							<Tooltip
 								label={formatDate(url.createdAt)}
 								color="dark"
-								position="top-start"
-								transition="pop-bottom-left"
+								position="top"
+								transition="pop"
 								withArrow
+								events={{ focus: false, hover: true, touch: true }}
 							>
-								<Text className={classes.shrink}>
+								<Text>
 									<ClientOnly>{formatDateRelative(url.createdAt)}</ClientOnly>
 								</Text>
 							</Tooltip>

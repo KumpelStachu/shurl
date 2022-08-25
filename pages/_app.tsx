@@ -1,49 +1,72 @@
 import ErrorHandler from '@components/ErrorHandler'
 import Navbar from '@components/Navbar'
-import { Container, MantineProvider } from '@mantine/core'
+import { RouterTransition } from '@components/RouterTransition'
+import { ColorScheme, ColorSchemeProvider, Container, MantineProvider } from '@mantine/core'
+import { useHotkeys, useLocalStorage } from '@mantine/hooks'
 import { NotificationsProvider } from '@mantine/notifications'
-import { AppRouter } from '@server/routers/app'
-import { withTRPC } from '@trpc/next'
-import { cache } from '@utils/cache'
-import { getBaseUrl } from '@utils/utils'
-import type { AppProps } from 'next/app'
-import Head from 'next/head'
-import superjson from 'superjson'
+import { AppRouter } from '@server/routers/_app'
 import { httpBatchLink } from '@trpc/client/links/httpBatchLink'
 import { loggerLink } from '@trpc/client/links/loggerLink'
+import { withTRPC } from '@trpc/next'
+import { cache } from '@utils/cache'
 import { SSRContext } from '@utils/trpc'
-import { RouterTransition } from '@components/RouterTransition'
+import { getBaseUrl } from '@utils/utils'
+import { SessionProvider } from 'next-auth/react'
+import type { AppProps } from 'next/app'
 import dynamic from 'next/dynamic'
+import Head from 'next/head'
+import superjson from 'superjson'
 
-const ReactQueryDevtools = dynamic(async () => (await import('react-query/devtools')).ReactQueryDevtools)
+const ReactQueryDevtools =
+	process.env.NODE_ENV === 'development' &&
+	dynamic(async () => (await import('react-query/devtools')).ReactQueryDevtools)
 
 function MyApp({ Component, pageProps }: AppProps) {
+	const [colorScheme, setColorScheme] = useLocalStorage<ColorScheme>({
+		key: 'theme',
+		defaultValue: 'dark',
+	})
+
+	const toggleColorScheme = (value?: ColorScheme) =>
+		setColorScheme(value || (colorScheme === 'dark' ? 'light' : 'dark'))
+
+	useHotkeys([['mod+J', () => toggleColorScheme()]])
+
 	return (
 		<>
 			<Head>
+				<title>shurl</title>
 				<link rel="icon" href="/favicon.ico" type="image/x-icon" />
 				<meta name="viewport" content="minimum-scale=1, initial-scale=1, width=device-width" />
 				<meta name="description" content="shurl - url shortener" />
 			</Head>
 
-			<MantineProvider
-				withGlobalStyles
-				withNormalizeCSS
-				theme={{ colorScheme: 'dark', defaultRadius: 'md', primaryColor: 'yellow' }}
-				emotionCache={cache}
-			>
-				<RouterTransition />
-				<NotificationsProvider position="top-right">
-					<ErrorHandler />
+			<SessionProvider session={pageProps.session}>
+				<ColorSchemeProvider colorScheme={colorScheme} toggleColorScheme={toggleColorScheme}>
+					<MantineProvider
+						withGlobalStyles
+						withNormalizeCSS
+						theme={{
+							colorScheme: colorScheme,
+							defaultRadius: 'md',
+							primaryColor: colorScheme === 'dark' ? 'yellow' : 'red',
+						}}
+						emotionCache={cache}
+					>
+						<RouterTransition />
+						<NotificationsProvider position="top-right">
+							<ErrorHandler />
 
-					<Navbar />
-					<Container size="sm" my="lg">
-						<Component {...pageProps} />
-					</Container>
-				</NotificationsProvider>
-			</MantineProvider>
+							<Navbar />
+							<Container size="sm" my="lg">
+								<Component {...pageProps} />
+							</Container>
+						</NotificationsProvider>
+					</MantineProvider>
+				</ColorSchemeProvider>
+			</SessionProvider>
 
-			<ReactQueryDevtools />
+			{ReactQueryDevtools && <ReactQueryDevtools />}
 		</>
 	)
 }
@@ -62,23 +85,23 @@ export default withTRPC<AppRouter>({
 			}),
 		],
 	}),
-	// ssr: true,
-	// responseMeta(opts) {
-	// 	const ctx = opts.ctx as SSRContext
+	ssr: true,
+	responseMeta(opts) {
+		const ctx = opts.ctx as SSRContext
 
-	// 	if (ctx.status) {
-	// 		return {
-	// 			status: ctx.status,
-	// 		}
-	// 	}
+		if (ctx.status) {
+			return {
+				status: ctx.status,
+			}
+		}
 
-	// 	const error = opts.clientErrors[0]
-	// 	if (error) {
-	// 		return {
-	// 			status: error.data?.httpStatus ?? 500,
-	// 		}
-	// 	}
+		const error = opts.clientErrors[0]
+		if (error) {
+			return {
+				status: error.data?.httpStatus ?? 500,
+			}
+		}
 
-	// 	return {}
-	// },
+		return {}
+	},
 })(MyApp)

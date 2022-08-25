@@ -1,4 +1,4 @@
-import { AppRouter } from '@server/routers/app'
+import { AppRouter } from '@server/routers/_app'
 import { createReactQueryHooks } from '@trpc/react'
 import type { inferProcedureInput, inferProcedureOutput } from '@trpc/server'
 import { NextPageContext } from 'next'

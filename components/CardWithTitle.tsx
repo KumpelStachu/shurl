@@ -8,7 +8,7 @@ type Props = {
 
 export default function CardWithTitle({ title, order = 2, children }: Props) {
 	return (
-		<Card>
+		<Card shadow="md">
 			<Title order={order} mb="sm">
 				{title}
 			</Title>

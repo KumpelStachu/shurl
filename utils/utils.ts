@@ -10,6 +10,8 @@ const emojiid = (size: number) =>
 		.map(() => EMOJI[Math.floor(Math.random() * EMOJI.length)])
 		.join('')
 
+export const delay = (delay: number) => new Promise(r => setTimeout(r, delay))
+
 export const getBaseUrl = () => {
 	if (typeof window !== 'undefined') {
 		return ''
@@ -69,5 +71,12 @@ export const randomAlias = (emoji = false, size?: number) =>
 
 export const expired = <T extends Pick<ShortUrl, 'expires'>>({ expires }: T) => dayjs().isBefore(expires)
 
-export const transformShurls = <T extends Pick<ShortUrl, 'password' | 'expires'>>(a: T[]) =>
-	a.map(v => (v.password || expired(v) ? { ...v, url: '******', password: v.password ? '******' : null } : v))
+export const transformShurls = <T extends Pick<ShortUrl, 'password' | 'expires' | 'userId'>>(
+	a: T[],
+	u?: string
+) =>
+	a.map(v =>
+		v.userId !== u && (v.password || expired(v))
+			? { ...v, url: '******', password: v.password ? '******' : null }
+			: v
+	)

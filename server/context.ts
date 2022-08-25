@@ -1,22 +1,20 @@
-import * as trpc from '@trpc/server'
-import * as trpcNext from '@trpc/server/adapters/next'
+import { inferAsyncReturnType } from '@trpc/server'
+import { CreateNextContextOptions } from '@trpc/server/adapters/next'
+import { prisma } from '@server/prisma'
+import { unstable_getServerSession } from 'next-auth'
+import { nextAuthOptions } from '@pages/api/auth/[...nextauth]'
 
-interface CreateContextOptions {
-	// session: Session | null
-}
+export type Context = inferAsyncReturnType<typeof createContext>
 
-/**
- * Inner function for `createContext` where we create the context.
- * This is useful for testing when we don't want to mock Next.js' request/response
- */
-export async function createContextInner(_opts: CreateContextOptions) {
-	return {}
-}
-
-export type Context = trpc.inferAsyncReturnType<typeof createContextInner>
-
-export async function createContext(opts: trpcNext.CreateNextContextOptions): Promise<Context> {
+export async function createContext({ req, res }: CreateNextContextOptions) {
 	// for API-response caching see https://trpc.io/docs/caching
 
-	return await createContextInner({})
+	const session = await unstable_getServerSession(req, res, nextAuthOptions)
+
+	return {
+		req,
+		res,
+		session,
+		prisma,
+	}
 }

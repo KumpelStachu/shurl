@@ -2,6 +2,8 @@ import CardWithTitle from '@components/CardWithTitle'
 import UrlsTable from '@components/UrlsTable'
 import {
 	ActionIcon,
+	Anchor,
+	Box,
 	Button,
 	Checkbox,
 	Group,
@@ -14,45 +16,52 @@ import {
 } from '@mantine/core'
 import { DatePicker, TimeInput } from '@mantine/dates'
 import { useForm } from '@mantine/form'
-import { useDisclosure, useLocalStorage, useMediaQuery } from '@mantine/hooks'
+import { useDisclosure, useMediaQuery } from '@mantine/hooks'
 import { NextLink } from '@mantine/next'
 import { showNotification } from '@mantine/notifications'
-import { ShortUrl } from '@prisma/client'
 import { IconAlphabetLatin, IconArrowsShuffle, IconCalendar, IconClock, IconMoodHappy } from '@tabler/icons'
 import { trpc } from '@utils/trpc'
 import { isValidUrl, mergeDateTime, randomAlias } from '@utils/utils'
 import dayjs from 'dayjs'
 import type { NextPage } from 'next'
+import { useSession } from 'next-auth/react'
 import Head from 'next/head'
 import { useEffect } from 'react'
-import superjson from 'superjson'
 
 const HomePage: NextPage = () => {
-	const [recentLocal, setRecentLocal] = useLocalStorage<ShortUrl[]>({
-		key: 'RECENT_SHURLS',
-		deserialize: v => superjson.parse(v ?? '[]'),
-		serialize: v => (console.log(v), superjson.stringify(v)),
-	})
 	const theme = useMantineTheme()
-	const large = useMediaQuery(theme.fn.largerThan('xs').slice(7), false)
+	const large = useMediaQuery(theme.fn.largerThan('xs').slice(7), true)
 	const [emoji, { toggle }] = useDisclosure(false)
+
+	const { status } = useSession()
+	const recent = trpc.useQuery(['user.myShurls', { size: 5 }], {
+		enabled: status === 'authenticated',
+	})
+
+	const context = trpc.useContext()
 	const create = trpc.useMutation(['shurl.create'], {
 		onSuccess(data) {
 			form.reset()
-			setRecentLocal(prev => [data, ...prev])
+			form.setFieldValue('alias', randomAlias())
+
+			if (status === 'authenticated') {
+				context.invalidateQueries(['user.myShurls'])
+			} else {
+				context.setQueryData(['user.myShurls', { size: 5 }], old => [data, ...(old ?? [])])
+			}
+
 			showNotification({
 				color: 'green',
 				title: 'created shurl',
 				message: (
-					<Text variant="link" component={NextLink} href={`/${data.alias}`}>
+					<Anchor component={NextLink} href={`/${data.alias}`}>
 						{location.origin}/{data.alias}
-					</Text>
+					</Anchor>
 				),
 				autoClose: 5000,
 			})
 		},
 		onError(error) {
-			console.table(error)
 			showNotification({
 				color: 'red',
 				title: error.message,
@@ -141,36 +150,54 @@ const HomePage: NextPage = () => {
 							</ActionIcon>
 						</Group>
 
-						<Group grow align="end" spacing="xs">
-							<DatePicker
-								icon={<IconCalendar size={20} />}
-								excludeDate={date => dayjs(date).isBefore(new Date().setHours(0, 0, 0, 0))}
-								label="expires"
-								placeholder="never"
-								clearable
-								{...form.getInputProps('expiresDate')}
+						<Stack spacing="xs" mx="-md" px="md" mb="-xs" pb="xs" sx={{ position: 'relative' }}>
+							<LoadingOverlay visible={status === 'loading'} />
+							<LoadingOverlay
+								visible={status === 'unauthenticated'}
+								loader={
+									<Text>
+										<Anchor component={NextLink} href="/auth/signin">
+											sign in
+										</Anchor>
+										&nbsp;or&nbsp;
+										<Anchor component={NextLink} href="/auth/signup">
+											sign up
+										</Anchor>
+										&nbsp;to unlock
+									</Text>
+								}
 							/>
-							{form.values.expiresDate && (
-								<TimeInput
-									icon={<IconClock size={20} />}
-									description={!form.values.expiresDate && 'never'}
-									disabled={!form.values.expiresDate}
-									{...form.getInputProps('expiresTime')}
-								/>
-							)}
-						</Group>
 
-						<Group align="end" spacing="xs">
-							<Checkbox mb="xs" {...form.getInputProps('usePassword', { type: 'checkbox' })} />
-							<PasswordInput
-								sx={{ flex: 1 }}
-								label="password"
-								autoComplete="new-password"
-								required={form.values.usePassword}
-								disabled={!form.values.usePassword}
-								{...form.getInputProps('password')}
-							/>
-						</Group>
+							<Group grow align="end" spacing="xs">
+								<DatePicker
+									icon={<IconCalendar size={20} />}
+									excludeDate={date => dayjs(date).isBefore(new Date().setHours(0, 0, 0, 0))}
+									label="expires"
+									placeholder="never"
+									clearable
+									{...form.getInputProps('expiresDate')}
+								/>
+								{form.values.expiresDate && (
+									<TimeInput
+										icon={<IconClock size={20} />}
+										description={!form.values.expiresDate && 'never'}
+										disabled={!form.values.expiresDate}
+										{...form.getInputProps('expiresTime')}
+									/>
+								)}
+							</Group>
+							<Group align="end" spacing="xs">
+								<Checkbox mb="xs" {...form.getInputProps('usePassword', { type: 'checkbox' })} />
+								<PasswordInput
+									sx={{ flex: 1 }}
+									label="password"
+									autoComplete="new-password"
+									required={form.values.usePassword}
+									disabled={!form.values.usePassword}
+									{...form.getInputProps('password')}
+								/>
+							</Group>
+						</Stack>
 
 						<Group mt="xs" position="apart" align="start">
 							<Checkbox label="public" {...form.getInputProps('public', { type: 'checkbox' })} />
@@ -180,11 +207,10 @@ const HomePage: NextPage = () => {
 				</form>
 			</CardWithTitle>
 
-			{recentLocal.length > 0 && (
-				<CardWithTitle title="last created" order={3}>
-					<UrlsTable urls={recentLocal} />
-				</CardWithTitle>
-			)}
+			<CardWithTitle title={`recently created (${recent.data?.length ?? 0})`} order={3}>
+				<LoadingOverlay visible={recent.isLoading} />
+				<UrlsTable urls={recent.data} />
+			</CardWithTitle>
 		</Stack>
 	)
 }
