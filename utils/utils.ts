@@ -69,7 +69,7 @@ export const isValidUrl = (url: string) => {
 export const randomAlias = (emoji = false, size?: number) =>
 	(emoji ? emojiid : nanoid)(size ?? (emoji ? 3 : 8))
 
-export const expired = <T extends Pick<ShortUrl, 'expires'>>({ expires }: T) => dayjs().isBefore(expires)
+export const expired = <T extends Pick<ShortUrl, 'expires'>>({ expires }: T) => !dayjs().isBefore(expires)
 
 export const transformShurls = <T extends Pick<ShortUrl, 'password' | 'expires' | 'userId'>>(
 	a: T[],

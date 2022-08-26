@@ -53,7 +53,7 @@ export default function UrlsTable({ urls, withClicks }: Props) {
 						</td>
 						{!small && (
 							<td className={classes.grow}>
-								{url.password || expired(url) ? (
+								{url.url === '******' && (url.password || expired(url)) ? (
 									<Tooltip
 										label={url.password ? 'password' : 'expired'}
 										color="red"
@@ -79,7 +79,7 @@ export default function UrlsTable({ urls, withClicks }: Props) {
 								<Tooltip
 									label={formatDate(url.expires)}
 									color="dark"
-									position="top"
+									position="top-start"
 									transition="pop"
 									withArrow
 									events={{ focus: false, hover: true, touch: true }}
@@ -96,7 +96,7 @@ export default function UrlsTable({ urls, withClicks }: Props) {
 							<Tooltip
 								label={formatDate(url.createdAt)}
 								color="dark"
-								position="top"
+								position="top-start"
 								transition="pop"
 								withArrow
 								events={{ focus: false, hover: true, touch: true }}
