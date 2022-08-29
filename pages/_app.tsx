@@ -1,30 +1,38 @@
 import ErrorHandler from '@components/ErrorHandler'
+import DeleteShurlModal from '@components/modals/DeleteShurlModal'
+import EditShurlModal from '@components/modals/EditShurlModal'
 import Navbar from '@components/Navbar'
 import { RouterTransition } from '@components/RouterTransition'
 import { ColorScheme, ColorSchemeProvider, Container, MantineProvider } from '@mantine/core'
 import { useHotkeys, useLocalStorage } from '@mantine/hooks'
+import { ModalsProvider } from '@mantine/modals'
 import { NotificationsProvider } from '@mantine/notifications'
-import { AppRouter } from '@server/routers/_app'
-import { httpBatchLink } from '@trpc/client/links/httpBatchLink'
-import { loggerLink } from '@trpc/client/links/loggerLink'
+import type { AppRouter } from '@server/routers/_app'
 import { withTRPC } from '@trpc/next'
 import { cache } from '@utils/cache'
-import { SSRContext } from '@utils/trpc'
+import type { SSRContext } from '@utils/trpc'
 import { getBaseUrl } from '@utils/utils'
+import type { NextPage } from 'next'
 import { SessionProvider } from 'next-auth/react'
 import type { AppProps } from 'next/app'
 import dynamic from 'next/dynamic'
 import Head from 'next/head'
+import type { ReactElement, ReactNode } from 'react'
 import superjson from 'superjson'
-import { ModalsProvider } from '@mantine/modals'
-import DeleteShurlModal from '@components/modals/DeleteShurlModal'
-import EditShurlModal from '@components/modals/EditShurlModal'
+
+export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
+	getLayout?: (page: ReactElement) => ReactNode
+}
+
+type AppPropsWithLayout = AppProps & {
+	Component: NextPageWithLayout
+}
 
 const ReactQueryDevtools =
 	process.env.NODE_ENV === 'development' &&
 	dynamic(async () => (await import('react-query/devtools')).ReactQueryDevtools)
 
-function MyApp({ Component, pageProps }: AppProps) {
+function MyApp({ Component, pageProps }: AppPropsWithLayout) {
 	const [colorScheme, setColorScheme] = useLocalStorage<ColorScheme>({
 		key: 'theme',
 		defaultValue: 'dark',
@@ -34,6 +42,14 @@ function MyApp({ Component, pageProps }: AppProps) {
 		setColorScheme(value || (colorScheme === 'dark' ? 'light' : 'dark'))
 
 	useHotkeys([['mod+J', () => toggleColorScheme()]])
+
+	const getLayout =
+		Component.getLayout ??
+		(page => (
+			<Container size="sm" py="lg">
+				{page}
+			</Container>
+		))
 
 	return (
 		<>
@@ -68,9 +84,7 @@ function MyApp({ Component, pageProps }: AppProps) {
 								<ErrorHandler />
 
 								<Navbar />
-								<Container size="sm" py="lg">
-									<Component {...pageProps} />
-								</Container>
+								{getLayout(<Component {...pageProps} />)}
 							</ModalsProvider>
 						</NotificationsProvider>
 					</MantineProvider>
@@ -83,9 +97,12 @@ function MyApp({ Component, pageProps }: AppProps) {
 }
 
 export default withTRPC<AppRouter>({
-	config: () => ({
+	config: ({ ctx }) => ({
 		transformer: superjson,
 		url: `${getBaseUrl()}/api/trpc`,
+		headers: {
+			cookie: ctx?.req?.headers.cookie,
+		},
 	}),
 	ssr: true,
 	responseMeta(opts) {

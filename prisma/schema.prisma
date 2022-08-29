@@ -12,7 +12,7 @@ datasource db {
 model ShortUrl {
   id          String    @id @default(cuid())
   alias       String    @unique
-  url         String
+  url         String    @db.Text
   public      Boolean   @default(true)
   visits      Int       @default(0)
   description String?

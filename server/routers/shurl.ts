@@ -47,7 +47,7 @@ export const shurlRouter = createRouter()
 	.mutation('create', {
 		input: z.object({
 			url: z.string().url(),
-			alias: z.string().min(1).max(32).default(randomAlias),
+			alias: z.string().min(1).max(191).default(randomAlias),
 			expires: z.date().min(new Date()).nullable(),
 			public: z.boolean(),
 			usePassword: z.boolean(),
@@ -73,7 +73,7 @@ export const shurlRouter = createRouter()
 		input: z.object({
 			id: z.string(),
 			url: z.string().url().optional(),
-			alias: z.string().min(1).max(32).optional(),
+			alias: z.string().min(1).max(191).optional(),
 			expires: z.date().min(new Date()).nullable().optional(),
 			public: z.boolean().optional(),
 			usePassword: z.boolean().default(true),

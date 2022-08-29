@@ -16,6 +16,7 @@ import { useForm } from '@mantine/form'
 import { NextLink } from '@mantine/next'
 import { showNotification } from '@mantine/notifications'
 import { nextAuthOptions } from '@pages/api/auth/[...nextauth]'
+import { ssrAuth } from '@server/utils'
 import { IconKey, IconUser } from '@tabler/icons'
 import type { NextPage } from 'next'
 import { GetServerSideProps } from 'next'
@@ -105,17 +106,6 @@ const SignInPage: NextPage = () => {
 	)
 }
 
-export const getServerSideProps: GetServerSideProps = async ctx => {
-	const session = await unstable_getServerSession(ctx.req, ctx.res, nextAuthOptions)
-
-	return session
-		? {
-				redirect: {
-					destination: '/',
-					permanent: false,
-				},
-		  }
-		: { props: {} }
-}
+export const getServerSideProps = ssrAuth('/?error=AlreadyLoggedIn', false)
 
 export default SignInPage

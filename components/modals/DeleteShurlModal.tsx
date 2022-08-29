@@ -1,4 +1,4 @@
-import { Anchor, Button, Group, LoadingOverlay, Stack } from '@mantine/core'
+import { Anchor, Button, FocusTrap, Group, LoadingOverlay, Stack } from '@mantine/core'
 import { ContextModalProps } from '@mantine/modals'
 import { NextLink } from '@mantine/next'
 import { ShortUrl } from '@prisma/client'
@@ -16,14 +16,13 @@ export default function DeleteShurlModal({ context, id, innerProps: shurl }: Con
 	return (
 		<Stack>
 			<LoadingOverlay visible={deleteShurl.isLoading} radius="md" />
-
 			<Group>
 				<Anchor component={NextLink} href={shurl.url}>
 					{shurl.url}
 				</Anchor>
 			</Group>
 			<Group position="right">
-				<Button variant="default" onClick={() => context.closeModal(id)}>
+				<Button variant="default" data-autofocus onClick={() => context.closeModal(id)}>
 					cancel
 				</Button>
 				<Button color="red" onClick={() => deleteShurl.mutate(shurl.id)}>

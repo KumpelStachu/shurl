@@ -1,4 +1,4 @@
-import { Table, Text, Tooltip, useMantineTheme } from '@mantine/core'
+import { Anchor, ScrollArea, Table, Text, Tooltip, useMantineTheme } from '@mantine/core'
 import { useForceUpdate, useInterval, useMediaQuery } from '@mantine/hooks'
 import { NextLink } from '@mantine/next'
 import { ShortUrl } from '@prisma/client'
@@ -17,7 +17,6 @@ export default function UrlsTable({ urls, withClicks, withExpires, actions }: Pr
 	const forceUpdate = useForceUpdate()
 	const theme = useMantineTheme()
 	const interval = useInterval(forceUpdate, 1000)
-	const small = useMediaQuery(theme.fn.smallerThan('xs').slice(7), false)
 	const showExpires = useMemo(() => withExpires || !!urls?.some(v => v.expires !== null), [withExpires, urls])
 
 	useEffect(() => {
@@ -26,27 +25,45 @@ export default function UrlsTable({ urls, withClicks, withExpires, actions }: Pr
 	}, [interval])
 
 	return (
-		<Table highlightOnHover striped>
-			<thead>
-				<tr>
-					<th>alias</th>
-					{!small && <th>url</th>}
-					{withClicks && <th>clicks</th>}
-					{showExpires && <th>expires</th>}
-					<th>created</th>
-					{actions && <th>actions</th>}
-				</tr>
-			</thead>
-
-			<tbody>
-				{urls?.map(url => (
-					<tr key={url.alias}>
-						<td>
-							<Text variant="link" component={NextLink} href={url.alias}>
-								{url.alias}
-							</Text>
-						</td>
-						{!small && (
+		<ScrollArea type="auto" pb="xs">
+			<Table
+				highlightOnHover
+				sx={{
+					minWidth: 'max-content',
+					whiteSpace: 'nowrap',
+					'tr>:nth-of-type(2)': {
+						textOverflow: 'ellipsis',
+						overflow: 'hidden',
+						maxWidth: 500,
+					},
+					'tbody>tr:hover>.actions': {
+						backgroundColor: theme.fn.themeColor(theme.colorScheme === 'dark' ? 'dark.5' : 'gray.1'),
+					},
+					'.actions': {
+						backgroundColor: theme.colorScheme === 'dark' ? theme.fn.themeColor('dark.6') : 'white',
+						position: 'sticky',
+						right: 0, //small ? -48 : 0,
+					},
+				}}
+			>
+				<thead>
+					<tr>
+						<th>alias</th>
+						<th>url</th>
+						{withClicks && <th>clicks</th>}
+						{showExpires && <th>expires</th>}
+						<th>created</th>
+						{actions && <th className="actions">actions</th>}
+					</tr>
+				</thead>
+				<tbody>
+					{urls?.map(url => (
+						<tr key={url.alias}>
+							<td>
+								<Anchor component={NextLink} href={url.alias}>
+									{url.alias}
+								</Anchor>
+							</td>
 							<td>
 								{url.url === '******' && (url.password || expired(url)) ? (
 									<Tooltip
@@ -62,51 +79,51 @@ export default function UrlsTable({ urls, withClicks, withExpires, actions }: Pr
 										</Text>
 									</Tooltip>
 								) : (
-									<Text variant="link" component={NextLink} href={url.url}>
+									<Anchor component={NextLink} href={`/${url.url}`}>
 										{url.url}
-									</Text>
+									</Anchor>
 								)}
 							</td>
-						)}
-						{withClicks && <td>{url.visits}</td>}
-						{showExpires && (
+							{withClicks && <td>{url.visits}</td>}
+							{showExpires && (
+								<td>
+									{url.expires ? (
+										<Tooltip
+											label={formatDate(url.expires)}
+											color="dark"
+											position="top-start"
+											transition="pop"
+											withArrow
+											events={{ focus: false, hover: true, touch: true }}
+										>
+											<Text>
+												<ClientOnly>{formatDateRelative(url.expires)}</ClientOnly>
+											</Text>
+										</Tooltip>
+									) : (
+										'never'
+									)}
+								</td>
+							)}
 							<td>
-								{url.expires ? (
-									<Tooltip
-										label={formatDate(url.expires)}
-										color="dark"
-										position="top-start"
-										transition="pop"
-										withArrow
-										events={{ focus: false, hover: true, touch: true }}
-									>
-										<Text>
-											<ClientOnly>{formatDateRelative(url.expires)}</ClientOnly>
-										</Text>
-									</Tooltip>
-								) : (
-									'never'
-								)}
+								<Tooltip
+									label={formatDate(url.createdAt)}
+									color="dark"
+									position="top-start"
+									transition="pop"
+									withArrow
+									events={{ focus: false, hover: true, touch: true }}
+								>
+									<Text>
+										<ClientOnly>{formatDateRelative(url.createdAt)}</ClientOnly>
+									</Text>
+								</Tooltip>
 							</td>
-						)}
-						<td>
-							<Tooltip
-								label={formatDate(url.createdAt)}
-								color="dark"
-								position="top-start"
-								transition="pop"
-								withArrow
-								events={{ focus: false, hover: true, touch: true }}
-							>
-								<Text>
-									<ClientOnly>{formatDateRelative(url.createdAt)}</ClientOnly>
-								</Text>
-							</Tooltip>
-						</td>
-						{actions && <td>{actions(url)}</td>}
-					</tr>
-				))}
-			</tbody>
-		</Table>
+							{actions && <td className="actions">{actions(url)}</td>}
+						</tr>
+					))}
+				</tbody>
+			</Table>
+		</ScrollArea>
 	)
 }

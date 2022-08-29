@@ -6,7 +6,7 @@ const NotFoundPage: NextPage = () => {
 	const router = useRouter()
 
 	useEffect(() => {
-		router.replace('/?error=notfound')
+		router.replace('/?error=NotFound')
 	})
 
 	return null

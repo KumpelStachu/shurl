@@ -17,6 +17,7 @@ import { useDebouncedValue, useMediaQuery } from '@mantine/hooks'
 import { NextLink } from '@mantine/next'
 import { showNotification } from '@mantine/notifications'
 import { nextAuthOptions } from '@pages/api/auth/[...nextauth]'
+import { ssrAuth } from '@server/utils'
 import { IconAt, IconKey, IconUser, IconUserCheck, IconUserX } from '@tabler/icons'
 import { trpc } from '@utils/trpc'
 import type { NextPage } from 'next'
@@ -180,17 +181,6 @@ const SignUpPage: NextPage = () => {
 	)
 }
 
-export const getServerSideProps: GetServerSideProps = async ctx => {
-	const session = await unstable_getServerSession(ctx.req, ctx.res, nextAuthOptions)
-
-	return session
-		? {
-				redirect: {
-					destination: '/',
-					permanent: false,
-				},
-		  }
-		: { props: {} }
-}
+export const getServerSideProps = ssrAuth('/?error=AlreadyLoggedIn', false)
 
 export default SignUpPage

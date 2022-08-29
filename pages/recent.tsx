@@ -10,7 +10,7 @@ const RecentPage: NextPage = () => {
 
 	return (
 		<CardWithTitle title="recent shurls">
-			<LoadingOverlay visible={query.status === 'loading'} />
+			<LoadingOverlay visible={query.isLoading} />
 			<Head>
 				<title>recent | shurl</title>
 			</Head>
@@ -19,21 +19,5 @@ const RecentPage: NextPage = () => {
 		</CardWithTitle>
 	)
 }
-
-// export const getStaticProps: GetStaticProps = async () => {
-// 	const ssg = createSSGHelpers({
-// 		router: appRouter,
-// 		ctx: await createContext(),
-// 	})
-
-// 	await ssg.prefetchQuery('shurl.recent')
-
-// 	return {
-// 		props: {
-// 			trpcState: ssg.dehydrate(),
-// 		},
-// 		revalidate: 600,
-// 	}
-// }
 
 export default RecentPage

@@ -54,7 +54,7 @@ export const getServerSideProps: GetServerSideProps = async ctx => {
 	if (!found)
 		return {
 			redirect: {
-				destination: '/?error=notfound',
+				destination: '/?error=NotFound',
 				permanent: true,
 			},
 		}
@@ -74,7 +74,7 @@ export const getServerSideProps: GetServerSideProps = async ctx => {
 
 	return {
 		redirect: {
-			destination: expired(found) ? '/?error=expired' : found.url,
+			destination: expired(found) ? '/?error=Expired' : found.url,
 			permanent: true,
 		},
 	}

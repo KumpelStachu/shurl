@@ -1,7 +1,9 @@
+import useMobile from '@hooks/useMobile'
 import {
 	ActionIcon,
 	Button,
 	Checkbox,
+	FocusTrap,
 	Group,
 	LoadingOverlay,
 	PasswordInput,
@@ -30,6 +32,7 @@ export default function EditShurlModal({ context, id, innerProps: shurl }: Conte
 	const theme = useMantineTheme()
 	const large = useMediaQuery(theme.fn.largerThan('xs').slice(7), true)
 	const [emoji, { toggle }] = useDisclosure(false)
+	const mobile = useMobile()
 	const form = useForm({
 		validateInputOnChange: true,
 		initialValues: {
@@ -37,7 +40,7 @@ export default function EditShurlModal({ context, id, innerProps: shurl }: Conte
 			alias: shurl.alias,
 			public: shurl.public,
 			usePassword: shurl.password !== null,
-			password: shurl.password,
+			password: shurl.password ?? '',
 			expiresDate: shurl.expires,
 			expiresTime: shurl.expires,
 		},
@@ -60,6 +63,7 @@ export default function EditShurlModal({ context, id, innerProps: shurl }: Conte
 			>
 				<Stack spacing="xs">
 					<TextInput
+						data-autofocus
 						required
 						type="url"
 						label="url"
@@ -104,6 +108,7 @@ export default function EditShurlModal({ context, id, innerProps: shurl }: Conte
 					<Stack spacing="xs" mx="-md" px="md" mb="-xs" pb="xs" sx={{ position: 'relative' }}>
 						<Group grow align="end" spacing="xs">
 							<DatePicker
+								dropdownType={mobile ? 'modal' : 'popover'}
 								icon={<IconCalendar size={20} />}
 								excludeDate={date => dayjs(date).isBefore(new Date().setHours(0, 0, 0, 0))}
 								label="expires"

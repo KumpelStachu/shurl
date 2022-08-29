@@ -1,21 +1,26 @@
+import { useDidUpdate } from '@mantine/hooks'
 import { showNotification } from '@mantine/notifications'
 import { useRouter } from 'next/router'
 import { useEffect } from 'react'
 
-export type ErrorType = 'notfound' | 'expired' | 'OAuthAccountNotLinked'
+export type ErrorType = 'NotFound' | 'Expired' | 'AlreadyLoggedIn' | 'OAuthAccountNotLinked'
 type Error = {
 	title: string
 	message: string
 }
 
 const ERRORS: { [key in ErrorType]: Error } = {
-	notfound: {
+	NotFound: {
 		title: 'not found',
 		message: 'page was not found',
 	},
-	expired: {
+	Expired: {
 		title: 'expired',
 		message: 'page has expired',
+	},
+	AlreadyLoggedIn: {
+		title: 'already logged in',
+		message: '',
 	},
 	OAuthAccountNotLinked: {
 		title: 'account not linked',
@@ -26,7 +31,7 @@ const ERRORS: { [key in ErrorType]: Error } = {
 export default function ErrorHandler() {
 	const router = useRouter()
 
-	useEffect(() => {
+	useDidUpdate(() => {
 		if (!router.query.error) return
 
 		const error = router.query.error as ErrorType
@@ -35,10 +40,6 @@ export default function ErrorHandler() {
 			message: ERRORS[error]?.message ?? 'unknown error',
 			color: 'red',
 		})
-
-		// router.replace('/', undefined, {
-		// 	shallow: true,
-		// })
 	}, [router, router.query.error])
 
 	return null
