@@ -16,6 +16,9 @@ import type { AppProps } from 'next/app'
 import dynamic from 'next/dynamic'
 import Head from 'next/head'
 import superjson from 'superjson'
+import { ModalsProvider } from '@mantine/modals'
+import DeleteShurlModal from '@components/modals/DeleteShurlModal'
+import EditShurlModal from '@components/modals/EditShurlModal'
 
 const ReactQueryDevtools =
 	process.env.NODE_ENV === 'development' &&
@@ -55,12 +58,20 @@ function MyApp({ Component, pageProps }: AppProps) {
 					>
 						<RouterTransition />
 						<NotificationsProvider position="top-right">
-							<ErrorHandler />
+							<ModalsProvider
+								modalProps={{ overlayBlur: 2 }}
+								modals={{
+									editShurl: EditShurlModal,
+									deleteShurl: DeleteShurlModal,
+								}}
+							>
+								<ErrorHandler />
 
-							<Navbar />
-							<Container size="sm" my="lg">
-								<Component {...pageProps} />
-							</Container>
+								<Navbar />
+								<Container size="sm" py="lg">
+									<Component {...pageProps} />
+								</Container>
+							</ModalsProvider>
 						</NotificationsProvider>
 					</MantineProvider>
 				</ColorSchemeProvider>
@@ -74,16 +85,7 @@ function MyApp({ Component, pageProps }: AppProps) {
 export default withTRPC<AppRouter>({
 	config: () => ({
 		transformer: superjson,
-		links: [
-			loggerLink({
-				enabled: opts =>
-					// process.env.NODE_ENV === 'development' ||
-					opts.direction === 'down' && opts.result instanceof Error,
-			}),
-			httpBatchLink({
-				url: `${getBaseUrl()}/api/trpc`,
-			}),
-		],
+		url: `${getBaseUrl()}/api/trpc`,
 	}),
 	ssr: true,
 	responseMeta(opts) {

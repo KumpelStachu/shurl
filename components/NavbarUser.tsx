@@ -1,7 +1,7 @@
 import { Avatar, Button, Menu } from '@mantine/core'
 import { useElementSize } from '@mantine/hooks'
 import { NextLink } from '@mantine/next'
-import { IconClock, IconLogin, IconLogout, IconUser, IconUserPlus } from '@tabler/icons'
+import { IconLogin, IconLogout, IconNotes, IconUser, IconUserPlus } from '@tabler/icons'
 import { signOut, useSession } from 'next-auth/react'
 
 export default function NavbarUser() {
@@ -42,7 +42,7 @@ export default function NavbarUser() {
 			{session ? (
 				<Menu.Dropdown>
 					{session.user.image && (
-						<Menu.Label pt="xs">
+						<Menu.Label mt="xs">
 							<Avatar src={session.user.image} size={120} mx="auto" />
 						</Menu.Label>
 					)}
@@ -55,7 +55,7 @@ export default function NavbarUser() {
 					<Menu.Item component={NextLink} href="/account" icon={<IconUser size={18} />}>
 						my account
 					</Menu.Item>
-					<Menu.Item component={NextLink} href="/account/shurls" icon={<IconClock size={18} />}>
+					<Menu.Item component={NextLink} href="/account/shurls" icon={<IconNotes size={18} />}>
 						my shurls
 					</Menu.Item>
 

@@ -34,7 +34,7 @@ const HomePage: NextPage = () => {
 	const [emoji, { toggle }] = useDisclosure(false)
 
 	const { status } = useSession()
-	const recent = trpc.useQuery(['user.myShurls', { size: 5 }], {
+	const recent = trpc.useQuery(['user.shurls', { size: 5 }], {
 		enabled: status === 'authenticated',
 	})
 
@@ -45,9 +45,9 @@ const HomePage: NextPage = () => {
 			form.setFieldValue('alias', randomAlias())
 
 			if (status === 'authenticated') {
-				context.invalidateQueries(['user.myShurls'])
+				context.invalidateQueries(['user.shurls'])
 			} else {
-				context.setQueryData(['user.myShurls', { size: 5 }], old => [data, ...(old ?? [])])
+				context.setQueryData(['user.shurls', { size: 5 }], old => [data, ...(old ?? [])])
 			}
 
 			showNotification({
@@ -102,7 +102,7 @@ const HomePage: NextPage = () => {
 			</Head>
 
 			<CardWithTitle title="create new shurl">
-				<LoadingOverlay visible={create.status === 'loading'} />
+				<LoadingOverlay visible={create.isLoading} />
 				<form
 					onSubmit={form.onSubmit(v =>
 						create.mutate({ ...v, expires: mergeDateTime(v.expiresDate, v.expiresTime) })

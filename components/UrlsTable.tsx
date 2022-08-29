@@ -1,30 +1,24 @@
-import { createStyles, Table, Text, Tooltip } from '@mantine/core'
+import { Table, Text, Tooltip, useMantineTheme } from '@mantine/core'
 import { useForceUpdate, useInterval, useMediaQuery } from '@mantine/hooks'
 import { NextLink } from '@mantine/next'
 import { ShortUrl } from '@prisma/client'
 import { expired, formatDate, formatDateRelative } from '@utils/utils'
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import ClientOnly from './ClientOnly'
 
 type Props = {
 	urls?: ShortUrl[]
-	withClicks?: boolean
+	withClicks?: true
+	withExpires?: true
+	actions?(shurl: ShortUrl): React.ReactNode
 }
 
-const useStyles = createStyles(theme => ({
-	grow: {
-		// maxWidth: theme.breakpoints.xs / 4,
-		// textOverflow: 'ellipsis',
-		// whiteSpace: 'nowrap',
-		// overflow: 'hidden',
-	},
-}))
-
-export default function UrlsTable({ urls, withClicks }: Props) {
+export default function UrlsTable({ urls, withClicks, withExpires, actions }: Props) {
 	const forceUpdate = useForceUpdate()
-	const { classes, theme } = useStyles()
-	const small = useMediaQuery(theme.fn.smallerThan('xs').slice(7), false)
+	const theme = useMantineTheme()
 	const interval = useInterval(forceUpdate, 1000)
+	const small = useMediaQuery(theme.fn.smallerThan('xs').slice(7), false)
+	const showExpires = useMemo(() => withExpires || !!urls?.some(v => v.expires !== null), [withExpires, urls])
 
 	useEffect(() => {
 		interval.start()
@@ -38,21 +32,22 @@ export default function UrlsTable({ urls, withClicks }: Props) {
 					<th>alias</th>
 					{!small && <th>url</th>}
 					{withClicks && <th>clicks</th>}
-					<th>expires</th>
+					{showExpires && <th>expires</th>}
 					<th>created</th>
+					{actions && <th>actions</th>}
 				</tr>
 			</thead>
 
 			<tbody>
 				{urls?.map(url => (
 					<tr key={url.alias}>
-						<td className={classes.grow}>
+						<td>
 							<Text variant="link" component={NextLink} href={url.alias}>
 								{url.alias}
 							</Text>
 						</td>
 						{!small && (
-							<td className={classes.grow}>
+							<td>
 								{url.url === '******' && (url.password || expired(url)) ? (
 									<Tooltip
 										label={url.password ? 'password' : 'expired'}
@@ -74,24 +69,26 @@ export default function UrlsTable({ urls, withClicks }: Props) {
 							</td>
 						)}
 						{withClicks && <td>{url.visits}</td>}
-						<td>
-							{url.expires ? (
-								<Tooltip
-									label={formatDate(url.expires)}
-									color="dark"
-									position="top-start"
-									transition="pop"
-									withArrow
-									events={{ focus: false, hover: true, touch: true }}
-								>
-									<Text>
-										<ClientOnly>{formatDateRelative(url.expires)}</ClientOnly>
-									</Text>
-								</Tooltip>
-							) : (
-								'never'
-							)}
-						</td>
+						{showExpires && (
+							<td>
+								{url.expires ? (
+									<Tooltip
+										label={formatDate(url.expires)}
+										color="dark"
+										position="top-start"
+										transition="pop"
+										withArrow
+										events={{ focus: false, hover: true, touch: true }}
+									>
+										<Text>
+											<ClientOnly>{formatDateRelative(url.expires)}</ClientOnly>
+										</Text>
+									</Tooltip>
+								) : (
+									'never'
+								)}
+							</td>
+						)}
 						<td>
 							<Tooltip
 								label={formatDate(url.createdAt)}
@@ -106,6 +103,7 @@ export default function UrlsTable({ urls, withClicks }: Props) {
 								</Text>
 							</Tooltip>
 						</td>
+						{actions && <td>{actions(url)}</td>}
 					</tr>
 				))}
 			</tbody>

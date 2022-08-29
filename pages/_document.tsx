@@ -21,7 +21,7 @@ export default class _Document extends Document {
 		return (
 			<Html>
 				<Head />
-				<body>
+				<body style={{ height: 'calc(100vh - 16px)' }}>
 					<Main />
 					<NextScript />
 				</body>

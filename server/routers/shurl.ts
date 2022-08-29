@@ -1,4 +1,5 @@
 import { createRouter } from '@server/createRouter'
+import { TRPCError } from '@trpc/server'
 import { randomAlias, transformShurls } from '@utils/utils'
 import { z } from 'zod'
 
@@ -45,7 +46,7 @@ export const shurlRouter = createRouter()
 	})
 	.mutation('create', {
 		input: z.object({
-			url: z.string().min(1).url(),
+			url: z.string().url(),
 			alias: z.string().min(1).max(32).default(randomAlias),
 			expires: z.date().min(new Date()).nullable(),
 			public: z.boolean(),
@@ -58,27 +59,46 @@ export const shurlRouter = createRouter()
 				input.expires = null
 			}
 
-			const created = await ctx.prisma.shortUrl.create({
+			return ctx.prisma.shortUrl.create({
 				data: {
 					...input,
 					password: usePassword ? input.password : null,
 					userId: ctx.session?.user.id,
 				},
 			})
-			return transformShurls([created], ctx.session?.user.id)[0]
+		},
+	})
+	.mutation('edit', {
+		meta: { auth: true },
+		input: z.object({
+			id: z.string(),
+			url: z.string().url().optional(),
+			alias: z.string().min(1).max(32).optional(),
+			expires: z.date().min(new Date()).nullable().optional(),
+			public: z.boolean().optional(),
+			usePassword: z.boolean().default(true),
+			password: z.string().nullable().optional(),
+		}),
+		async resolve({ ctx, input: { id, usePassword, ...input } }) {
+			const shurl = await ctx.prisma.shortUrl.findFirst({ where: { id, userId: ctx.session!.user.id } })
+			if (!shurl) throw new TRPCError({ code: 'UNAUTHORIZED' })
+
+			return ctx.prisma.shortUrl.update({
+				where: { id },
+				data: {
+					...input,
+					password: usePassword ? input.password : null,
+				},
+			})
 		},
 	})
 	.mutation('delete', {
 		meta: { auth: true },
-		input: z.object({
-			id: z.string(),
-		}),
-		async resolve({ ctx, input: { id } }) {
-			await ctx.prisma.shortUrl.findFirstOrThrow({ where: { id, userId: ctx.session?.user.id } })
+		input: z.string(),
+		async resolve({ ctx, input: id }) {
+			const shurl = await ctx.prisma.shortUrl.findFirst({ where: { id, userId: ctx.session!.user.id } })
+			if (!shurl) throw new TRPCError({ code: 'UNAUTHORIZED' })
 
-			await ctx.prisma.shortUrl.delete({ where: { id } })
-			return {
-				id,
-			}
+			return ctx.prisma.shortUrl.delete({ where: { id } })
 		},
 	})
