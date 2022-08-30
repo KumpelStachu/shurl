@@ -12,7 +12,7 @@ import {
 import { useForm, zodResolver } from '@mantine/form'
 import { useShallowEffect } from '@mantine/hooks'
 import { showNotification } from '@mantine/notifications'
-import { IconEye } from '@tabler/icons'
+import { IconCheck, IconEye } from '@tabler/icons'
 import { inferMutationInput, trpc } from '@utils/trpc'
 import { invalidateSession } from '@utils/utils'
 import deepEqual from 'deep-equal'
@@ -25,6 +25,11 @@ export default function AccountSettings() {
 	const create = trpc.useMutation('user.updateAccount', {
 		onSuccess() {
 			invalidateSession()
+			showNotification({
+				title: 'success',
+				message: 'account settings updated successfuly',
+				color: 'green',
+			})
 		},
 		onError(error) {
 			showNotification({
