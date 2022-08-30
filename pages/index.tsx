@@ -39,7 +39,7 @@ const HomePage: NextPage = () => {
 	})
 
 	const context = trpc.useContext()
-	const create = trpc.useMutation(['shurl.create'], {
+	const create = trpc.useMutation('shurl.create', {
 		onSuccess(data) {
 			form.reset()
 			form.setFieldValue('alias', randomAlias())

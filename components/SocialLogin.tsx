@@ -1,55 +1,53 @@
-import { Button, Grid, Group, MantineTheme, SimpleGrid } from '@mantine/core'
+import { Button, Grid } from '@mantine/core'
+import { s } from '@utils/utils'
 import { signIn } from 'next-auth/react'
+import { useRouter } from 'next/router'
 import CardWithTitle from './CardWithTitle'
 
-const s =
-	([c]: TemplateStringsArray, d?: number) =>
-	(theme: MantineTheme) => ({
-		backgroundColor: c,
-		':not(:disabled):hover': { backgroundColor: theme.fn.darken(c, d ?? 0.32) },
-	})
-
 export default function SocialLogin() {
+	const router = useRouter()
+	const callbackUrl = (router.query.next as string) ?? '/'
+
 	return (
 		<CardWithTitle title="social login">
 			<Grid grow>
 				<Grid.Col span={6} md={4}>
-					<Button sx={s`#5865ED`} onClick={() => signIn('discord')} fullWidth>
+					<Button sx={s`#5865ED`} onClick={() => signIn('discord', { callbackUrl })} fullWidth>
 						discord
 					</Button>
 				</Grid.Col>
 				<Grid.Col span={6} md={4}>
-					<Button sx={s`#3B5998`} onClick={() => signIn('facebook')} fullWidth>
+					<Button sx={s`#3B5998`} onClick={() => signIn('facebook', { callbackUrl })} fullWidth>
 						facebook
 					</Button>
 				</Grid.Col>
 				<Grid.Col span={6} md={4}>
-					<Button sx={s`#EA4335`} onClick={() => signIn('google')} fullWidth>
+					<Button sx={s`#EA4335`} onClick={() => signIn('google', { callbackUrl })} fullWidth>
 						google
 					</Button>
 				</Grid.Col>
 				<Grid.Col span={6} md={4}>
-					<Button sx={s`#1B1F22`} onClick={() => signIn('github')} fullWidth>
+					<Button sx={s`#1B1F22`} onClick={() => signIn('github', { callbackUrl })} fullWidth>
 						github
 					</Button>
 				</Grid.Col>
 				<Grid.Col span={6} md={4}>
-					<Button sx={s`#FF4500`} onClick={() => signIn('reddit')} fullWidth>
+					<Button sx={s`#FF4500`} onClick={() => signIn('reddit', { callbackUrl })} fullWidth>
 						reddit
 					</Button>
 				</Grid.Col>
 				<Grid.Col span={6} md={4}>
-					<Button sx={s`#1DB954`} onClick={() => signIn('spotify')} fullWidth disabled>
+					<Button sx={s`#1DB954`} onClick={() => signIn('spotify', { callbackUrl })} fullWidth disabled>
 						spotify
 					</Button>
 				</Grid.Col>
 				<Grid.Col span={6} md={4}>
-					<Button sx={s`#9146FF`} onClick={() => signIn('twitch')} fullWidth disabled>
+					<Button sx={s`#9146FF`} onClick={() => signIn('twitch', { callbackUrl })} fullWidth disabled>
 						twitch
 					</Button>
 				</Grid.Col>
 				<Grid.Col span={6} md={4}>
-					<Button sx={s`#1DA1F2`} onClick={() => signIn('twitch')} fullWidth disabled>
+					<Button sx={s`#1DA1F2`} onClick={() => signIn('twitter', { callbackUrl })} fullWidth disabled>
 						twitter
 					</Button>
 				</Grid.Col>

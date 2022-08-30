@@ -41,11 +41,9 @@ export default function NavbarUser() {
 			</Menu.Target>
 			{session ? (
 				<Menu.Dropdown>
-					{session.user.image && (
-						<Menu.Label mt="xs">
-							<Avatar src={session.user.image} size={120} mx="auto" />
-						</Menu.Label>
-					)}
+					<Menu.Label mt="xs">
+						<Avatar src={session.user.image} size={100} mx="auto" color="primary" />
+					</Menu.Label>
 					<Menu.Label sx={{ overflow: 'hidden', textOverflow: 'ellipsis', textAlign: 'center' }}>
 						{session.user.name}
 					</Menu.Label>

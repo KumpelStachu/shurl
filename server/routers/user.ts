@@ -2,7 +2,7 @@ import dayjs from 'dayjs'
 import { z } from 'zod'
 import { createRouter } from '../createRouter'
 
-export const userRouter = createRouter({ auth: true }) //
+export const userRouter = createRouter({ auth: true })
 	.query('shurls', {
 		input: z.object({
 			size: z.number().optional(),
@@ -59,6 +59,83 @@ export const userRouter = createRouter({ auth: true }) //
 				},
 				take: input.size,
 				skip: (input.size ?? 0) * input.page,
+			})
+		},
+	})
+	.query('providers', {
+		async resolve({ ctx }) {
+			const accounts = await ctx.prisma.account.findMany({
+				where: {
+					userId: ctx.session!.user.id,
+				},
+			})
+
+			return accounts.map(a => a.provider)
+		},
+	})
+	.mutation('unlinkAccount', {
+		input: z.string(),
+		async resolve({ ctx, input }) {
+			const account = await ctx.prisma.account.findFirstOrThrow({
+				where: {
+					userId: ctx.session!.user.id,
+					provider: input,
+				},
+			})
+
+			return ctx.prisma.account.delete({
+				where: {
+					id: account.id,
+				},
+			})
+		},
+	})
+	.mutation('unlinkShurls', {
+		async resolve({ ctx }) {
+			return ctx.prisma.shortUrl.updateMany({
+				data: {
+					userId: null,
+				},
+				where: {
+					userId: ctx.session!.user.id,
+				},
+			})
+		},
+	})
+	.mutation('deleteShurls', {
+		async resolve({ ctx }) {
+			return ctx.prisma.shortUrl.deleteMany({
+				where: {
+					userId: ctx.session!.user.id,
+				},
+			})
+		},
+	})
+	.mutation('deleteAccount', {
+		async resolve({ ctx }) {
+			return ctx.prisma.user.delete({
+				where: {
+					id: ctx.session!.user.id,
+				},
+			})
+		},
+	})
+	.mutation('updateAccount', {
+		input: z.object({
+			email: z.string().email().or(z.literal('')),
+			name: z.string().min(1),
+			image: z.string().url().or(z.literal('')),
+		}),
+		async resolve({ ctx, input }) {
+			return ctx.prisma.user.update({
+				data: {
+					email: input.email || null,
+					image: input.image || null,
+					name: input.name,
+				},
+				where: {
+					id: ctx.session!.user.id,
+				},
 			})
 		},
 	})

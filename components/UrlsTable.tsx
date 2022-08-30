@@ -8,12 +8,12 @@ import ClientOnly from './ClientOnly'
 
 type Props = {
 	urls?: ShortUrl[]
-	withClicks?: true
+	withVisits?: true
 	withExpires?: true
 	actions?(shurl: ShortUrl): React.ReactNode
 }
 
-export default function UrlsTable({ urls, withClicks, withExpires, actions }: Props) {
+export default function UrlsTable({ urls, withVisits, withExpires, actions }: Props) {
 	const forceUpdate = useForceUpdate()
 	const theme = useMantineTheme()
 	const interval = useInterval(forceUpdate, 1000)
@@ -50,7 +50,7 @@ export default function UrlsTable({ urls, withClicks, withExpires, actions }: Pr
 					<tr>
 						<th>alias</th>
 						<th>url</th>
-						{withClicks && <th>clicks</th>}
+						{withVisits && <th>visits</th>}
 						{showExpires && <th>expires</th>}
 						<th>created</th>
 						{actions && <th className="actions">actions</th>}
@@ -60,7 +60,7 @@ export default function UrlsTable({ urls, withClicks, withExpires, actions }: Pr
 					{urls?.map(url => (
 						<tr key={url.alias}>
 							<td>
-								<Anchor component={NextLink} href={url.alias}>
+								<Anchor component={NextLink} href={`/${url.alias}`}>
 									{url.alias}
 								</Anchor>
 							</td>
@@ -79,12 +79,12 @@ export default function UrlsTable({ urls, withClicks, withExpires, actions }: Pr
 										</Text>
 									</Tooltip>
 								) : (
-									<Anchor component={NextLink} href={`/${url.url}`}>
+									<Anchor component={NextLink} href={url.url}>
 										{url.url}
 									</Anchor>
 								)}
 							</td>
-							{withClicks && <td>{url.visits}</td>}
+							{withVisits && <td>{url.visits}</td>}
 							{showExpires && (
 								<td>
 									{url.expires ? (

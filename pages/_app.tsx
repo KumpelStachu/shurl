@@ -1,6 +1,9 @@
 import ErrorHandler from '@components/ErrorHandler'
+import DeleteAccountConfirmModal from '@components/modals/DeleteAccountConfirmModal'
 import DeleteShurlModal from '@components/modals/DeleteShurlModal'
+import DeleteShurlsConfirmModal from '@components/modals/DeleteShurlsConfirmModal'
 import EditShurlModal from '@components/modals/EditShurlModal'
+import UnlinkShurlsConfirmModal from '@components/modals/UnlinkShurlsConfirmModal'
 import Navbar from '@components/Navbar'
 import { RouterTransition } from '@components/RouterTransition'
 import { ColorScheme, ColorSchemeProvider, Container, MantineProvider } from '@mantine/core'
@@ -79,6 +82,9 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
 								modals={{
 									editShurl: EditShurlModal,
 									deleteShurl: DeleteShurlModal,
+									deleteShurlsConfirm: DeleteShurlsConfirmModal,
+									unlinkShurlsConfirm: UnlinkShurlsConfirmModal,
+									deleteAccountConfirm: DeleteAccountConfirmModal,
 								}}
 							>
 								<ErrorHandler />

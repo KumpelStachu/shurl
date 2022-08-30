@@ -11,6 +11,7 @@ import {
 	Divider,
 	Group,
 	LoadingOverlay,
+	Pagination,
 	SegmentedControl,
 	Select,
 	Stack,
@@ -236,7 +237,7 @@ const MyShurlsPage: NextPageWithLayout = () => {
 			</Collapse>
 
 			<UrlsTable
-				withClicks
+				withVisits
 				withExpires
 				urls={recent.data}
 				actions={shurl => (

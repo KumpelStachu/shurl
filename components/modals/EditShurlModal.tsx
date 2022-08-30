@@ -3,7 +3,6 @@ import {
 	ActionIcon,
 	Button,
 	Checkbox,
-	FocusTrap,
 	Group,
 	LoadingOverlay,
 	PasswordInput,
@@ -23,7 +22,7 @@ import dayjs from 'dayjs'
 
 export default function EditShurlModal({ context, id, innerProps: shurl }: ContextModalProps<ShortUrl>) {
 	const utils = trpc.useContext()
-	const editShurl = trpc.useMutation(['shurl.edit'], {
+	const editShurl = trpc.useMutation('shurl.edit', {
 		onSuccess() {
 			utils.refetchQueries(['user.shurls'])
 			context.closeModal(id)
@@ -47,8 +46,6 @@ export default function EditShurlModal({ context, id, innerProps: shurl }: Conte
 		validate: {
 			alias: value => decodeURI(value).includes('/'),
 			url: value => !isValidUrl(value) && 'invalid url',
-			expiresTime: (value: Date | null, { expiresDate }: { expiresDate: Date | null }) =>
-				!dayjs().isBefore(expiresDate) && dayjs().isAfter(value ?? expiresDate),
 		},
 	})
 

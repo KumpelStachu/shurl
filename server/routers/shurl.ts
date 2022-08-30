@@ -74,7 +74,7 @@ export const shurlRouter = createRouter()
 			id: z.string(),
 			url: z.string().url().optional(),
 			alias: z.string().min(1).max(191).optional(),
-			expires: z.date().min(new Date()).nullable().optional(),
+			expires: z.date().nullable().optional(),
 			public: z.boolean().optional(),
 			usePassword: z.boolean().default(true),
 			password: z.string().nullable().optional(),

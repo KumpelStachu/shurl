@@ -5,7 +5,11 @@ import { IconAt } from '@tabler/icons'
 import { signIn } from 'next-auth/react'
 import { useState } from 'react'
 
-export default function EmailSignin() {
+type Props = {
+	callbackUrl?: string
+}
+
+export default function EmailSignin({ callbackUrl }: Props) {
 	const [state, setState] = useState(false)
 	const form = useForm({
 		initialValues: {
@@ -17,6 +21,7 @@ export default function EmailSignin() {
 		setState(true)
 		const res = await signIn('email', {
 			redirect: false,
+			callbackUrl,
 			email,
 		})
 		if (res?.ok) {

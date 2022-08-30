@@ -68,7 +68,7 @@ const SignUpPage: NextPage = () => {
 		},
 	})
 
-	const signUp = trpc.useMutation(['auth.signUp'], {
+	const signUp = trpc.useMutation('auth.signUp', {
 		async onSuccess(_, v) {
 			await signIn('credentials', v)
 			location.pathname = (router.query.next ?? router.query.callback ?? '/') as string

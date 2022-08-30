@@ -1,3 +1,4 @@
+import type { MantineTheme } from '@mantine/core'
 import type { ShortUrl } from '@prisma/client'
 import dayjs from 'dayjs'
 import { customAlphabet } from 'nanoid'
@@ -81,3 +82,12 @@ export const transformShurls = <T extends Pick<ShortUrl, 'password' | 'expires' 
 			? { ...v, url: '******', password: v.password ? '******' : null }
 			: v
 	)
+
+export const invalidateSession = () => document.dispatchEvent(new Event('visibilitychange'))
+
+export const s =
+	([c]: TemplateStringsArray | [`#${string}`], d?: number) =>
+	(theme: MantineTheme) => ({
+		backgroundColor: c,
+		':not(:disabled):hover': { backgroundColor: theme.fn.darken(c, d ?? 0.32) },
+	})

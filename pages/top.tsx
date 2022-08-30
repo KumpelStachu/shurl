@@ -15,7 +15,7 @@ const TopPage: NextPage = () => {
 				<title>top | shurl</title>
 			</Head>
 
-			<UrlsTable urls={query.data} withClicks />
+			<UrlsTable urls={query.data} withVisits />
 		</CardWithTitle>
 	)
 }

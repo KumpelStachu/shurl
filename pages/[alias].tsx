@@ -8,7 +8,7 @@ import type { GetServerSideProps, NextPage } from 'next'
 import { useRouter } from 'next/router'
 
 const RedirectPage: NextPage = () => {
-	const checkPassword = trpc.useMutation(['shurl.checkPassword'], {
+	const checkPassword = trpc.useMutation('shurl.checkPassword', {
 		onSuccess: ({ url }) => router.push(url),
 		onError: () => form.setFieldError('password', 'invalid passowrd'),
 	})
