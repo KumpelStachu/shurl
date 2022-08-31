@@ -1,11 +1,12 @@
+import useSession from '@hooks/useSession'
 import { Avatar, Button, Menu } from '@mantine/core'
 import { useElementSize } from '@mantine/hooks'
 import { NextLink } from '@mantine/next'
 import { IconLogin, IconLogout, IconNotes, IconUser, IconUserPlus } from '@tabler/icons'
-import { signOut, useSession } from 'next-auth/react'
+import { signOut } from 'next-auth/react'
 
 export default function NavbarUser() {
-	const { data: session, status } = useSession()
+	const { session, status } = useSession()
 	const { ref, width } = useElementSize()
 
 	return (

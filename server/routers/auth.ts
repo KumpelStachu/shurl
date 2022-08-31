@@ -3,6 +3,11 @@ import { z } from 'zod'
 import { createRouter } from '../createRouter'
 
 export const authRouter = createRouter()
+	.query('session', {
+		resolve({ ctx }) {
+			return ctx.session
+		},
+	})
 	.query('checkUsername', {
 		input: z.string().trim().min(1).max(191),
 		async resolve({ ctx, input }) {

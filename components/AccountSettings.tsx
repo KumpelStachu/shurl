@@ -1,3 +1,4 @@
+import useSession from '@hooks/useSession'
 import {
 	Avatar,
 	Button,
@@ -12,19 +13,17 @@ import {
 import { useForm, zodResolver } from '@mantine/form'
 import { useShallowEffect } from '@mantine/hooks'
 import { showNotification } from '@mantine/notifications'
-import { IconCheck, IconEye } from '@tabler/icons'
+import { IconEye } from '@tabler/icons'
 import { inferMutationInput, trpc } from '@utils/trpc'
-import { invalidateSession } from '@utils/utils'
 import deepEqual from 'deep-equal'
-import { useSession } from 'next-auth/react'
 import { z } from 'zod'
 import CardWithTitle from './CardWithTitle'
 
 export default function AccountSettings() {
-	const { data: session, status } = useSession<true>()
+	const { session, status, invalidate } = useSession<true>()
 	const create = trpc.useMutation('user.updateAccount', {
 		onSuccess() {
-			invalidateSession()
+			invalidate()
 			showNotification({
 				title: 'success',
 				message: 'account settings updated successfuly',
@@ -143,9 +142,9 @@ export default function AccountSettings() {
 								status === 'loading' ||
 								deepEqual(
 									{
-										email: session.user.email ?? '',
-										image: session.user.image ?? '',
-										name: session.user.name!,
+										email: session?.user.email ?? '',
+										image: session?.user.image ?? '',
+										name: session?.user.name,
 									},
 									form.values
 								)

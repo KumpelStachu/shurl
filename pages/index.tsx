@@ -1,9 +1,9 @@
 import CardWithTitle from '@components/CardWithTitle'
 import UrlsTable from '@components/UrlsTable'
+import useSession from '@hooks/useSession'
 import {
 	ActionIcon,
 	Anchor,
-	Box,
 	Button,
 	Checkbox,
 	Group,
@@ -24,7 +24,6 @@ import { trpc } from '@utils/trpc'
 import { isValidUrl, mergeDateTime, randomAlias } from '@utils/utils'
 import dayjs from 'dayjs'
 import type { NextPage } from 'next'
-import { useSession } from 'next-auth/react'
 import Head from 'next/head'
 import { useEffect } from 'react'
 

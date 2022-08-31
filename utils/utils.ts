@@ -83,8 +83,6 @@ export const transformShurls = <T extends Pick<ShortUrl, 'password' | 'expires' 
 			: v
 	)
 
-export const invalidateSession = () => document.dispatchEvent(new Event('visibilitychange'))
-
 export const s =
 	([c]: TemplateStringsArray | [`#${string}`], d?: number) =>
 	(theme: MantineTheme) => ({
