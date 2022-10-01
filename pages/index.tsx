@@ -1,5 +1,6 @@
 import CardWithTitle from '@components/CardWithTitle'
 import UrlsTable from '@components/UrlsTable'
+import { useAutoAnimate } from '@formkit/auto-animate/react'
 import useSession from '@hooks/useSession'
 import {
 	ActionIcon,
@@ -194,6 +195,7 @@ const HomePage: NextPage = () => {
 									required={form.values.usePassword}
 									disabled={!form.values.usePassword}
 									{...form.getInputProps('password')}
+									{...(form.values.usePassword ? {} : { value: '' })}
 								/>
 							</Group>
 						</Stack>

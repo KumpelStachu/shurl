@@ -5,6 +5,8 @@ import { ShortUrl } from '@prisma/client'
 import { expired, formatDate, formatDateRelative } from '@utils/utils'
 import { useEffect, useMemo } from 'react'
 import ClientOnly from './ClientOnly'
+import { useAutoAnimate } from '@formkit/auto-animate/react'
+import { IconLock } from '@tabler/icons'
 
 type Props = {
 	urls?: ShortUrl[]
@@ -18,6 +20,8 @@ export default function UrlsTable({ urls, withVisits, withExpires, actions }: Pr
 	const theme = useMantineTheme()
 	const interval = useInterval(forceUpdate, 1000)
 	const showExpires = useMemo(() => withExpires || !!urls?.some(v => v.expires !== null), [withExpires, urls])
+	const small = useMediaQuery(theme.fn.smallerThan('xs').slice(7), false)
+	const [animateRef] = useAutoAnimate<HTMLTableSectionElement>()
 
 	useEffect(() => {
 		interval.start()
@@ -25,7 +29,23 @@ export default function UrlsTable({ urls, withVisits, withExpires, actions }: Pr
 	}, [interval])
 
 	return (
-		<ScrollArea type="auto" pb="xs">
+		<ScrollArea
+			type="auto"
+			pb="xs"
+			styles={{
+				root: {
+					'--radix-scroll-area-corner-height': 0,
+				},
+				scrollbar: {
+					'&[data-orientation="vertical"]': {
+						display: 'none',
+					},
+				},
+				corner: {
+					display: 'none',
+				},
+			}}
+		>
 			<Table
 				highlightOnHover
 				sx={{
@@ -34,7 +54,8 @@ export default function UrlsTable({ urls, withVisits, withExpires, actions }: Pr
 					'tr>:nth-of-type(2)': {
 						textOverflow: 'ellipsis',
 						overflow: 'hidden',
-						maxWidth: 500,
+						maxWidth: 300,
+						display: small ? 'none' : '',
 					},
 					'tbody>tr:hover>.actions': {
 						backgroundColor: theme.fn.themeColor(theme.colorScheme === 'dark' ? 'dark.5' : 'gray.1'),
@@ -56,7 +77,7 @@ export default function UrlsTable({ urls, withVisits, withExpires, actions }: Pr
 						{actions && <th className="actions">actions</th>}
 					</tr>
 				</thead>
-				<tbody>
+				<tbody ref={animateRef}>
 					{urls?.map(url => (
 						<tr key={url.alias}>
 							<td>
@@ -69,13 +90,15 @@ export default function UrlsTable({ urls, withVisits, withExpires, actions }: Pr
 									<Tooltip
 										label={url.password ? 'password' : 'expired'}
 										color="red"
-										position="left-start"
+										position="top-start"
 										transition="pop"
 										withArrow
+										withinPortal
 										events={{ focus: false, hover: true, touch: true }}
 									>
 										<Text color="red" sx={{ cursor: 'not-allowed', width: 'min-content' }}>
-											******
+											<IconLock size={16} />
+											*****
 										</Text>
 									</Tooltip>
 								) : (
@@ -94,9 +117,10 @@ export default function UrlsTable({ urls, withVisits, withExpires, actions }: Pr
 											position="top-start"
 											transition="pop"
 											withArrow
+											withinPortal
 											events={{ focus: false, hover: true, touch: true }}
 										>
-											<Text>
+											<Text sx={{ cursor: 'help' }}>
 												<ClientOnly>{formatDateRelative(url.expires)}</ClientOnly>
 											</Text>
 										</Tooltip>
@@ -112,9 +136,10 @@ export default function UrlsTable({ urls, withVisits, withExpires, actions }: Pr
 									position="top-start"
 									transition="pop"
 									withArrow
+									withinPortal
 									events={{ focus: false, hover: true, touch: true }}
 								>
-									<Text>
+									<Text sx={{ cursor: 'help' }}>
 										<ClientOnly>{formatDateRelative(url.createdAt)}</ClientOnly>
 									</Text>
 								</Tooltip>

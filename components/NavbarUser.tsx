@@ -13,6 +13,7 @@ export default function NavbarUser() {
 		<Menu
 			width={session ? 200 : 150}
 			position="bottom-end"
+			transition="pop-top-right"
 			withinPortal
 			withArrow
 			shadow="md"

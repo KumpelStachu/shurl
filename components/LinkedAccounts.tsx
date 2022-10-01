@@ -1,6 +1,5 @@
 import { Grid, LoadingOverlay } from '@mantine/core'
 import { trpc } from '@utils/trpc'
-import React from 'react'
 import CardWithTitle from './CardWithTitle'
 import LinkAccount from './LinkAccount'
 

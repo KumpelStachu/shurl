@@ -8,7 +8,7 @@ import NavbarUser from './NavbarUser'
 
 export default function Navbar() {
 	const { ref, height } = useElementSize()
-	const router = useRouter()
+	const { pathname } = useRouter()
 	const theme = useMantineTheme()
 	const large = useMediaQuery(theme.fn.largerThan('xs').slice(7), true)
 	const small = useMediaQuery(`(max-width: ${theme.breakpoints.sm / 2}px)`, false)
@@ -20,7 +20,7 @@ export default function Navbar() {
 					<Button
 						component={NextLink}
 						href="/"
-						variant={router.pathname === '/' ? 'light' : 'subtle'}
+						variant={pathname === '/' ? 'light' : 'subtle'}
 						leftIcon={<IconPlus size={20} />}
 						px="sm"
 					>
@@ -31,7 +31,7 @@ export default function Navbar() {
 						<Button
 							component={NextLink}
 							href="/top"
-							variant={router.pathname === '/top' ? 'light' : 'subtle'}
+							variant={pathname === '/top' ? 'light' : 'subtle'}
 							leftIcon={<IconHandClick size={20} />}
 							px="sm"
 							styles={{
@@ -46,7 +46,7 @@ export default function Navbar() {
 						<Button
 							component={NextLink}
 							href="/recent"
-							variant={router.pathname === '/recent' ? 'light' : 'subtle'}
+							variant={pathname === '/recent' ? 'light' : 'subtle'}
 							leftIcon={<IconClock size={20} />}
 							px="sm"
 							styles={{
